@@ -9,12 +9,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "URL GitHub non valido." }, { status: 400 });
     }
 
-    const parts = new URL(url).pathname.split('/').filter(Boolean);
-    const repo_name = parts.length >= 2 ? `${parts[0]}/${parts[1]}` : url;
+    // Decode the URL in case it's double-encoded
+    const decodedUrl = decodeURIComponent(url);
+    
+    let parts;
+    try {
+      parts = new URL(decodedUrl).pathname.split('/').filter(Boolean);
+    } catch {
+      parts = decodedUrl.replace('https://github.com/', '').split('/').filter(Boolean);
+    }
+    const repo_name = parts.length >= 2 ? `${parts[0]}/${parts[1]}` : decodedUrl;
 
     // Use Gemini
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.error("GEMINI_API_KEY is not set");
+      return NextResponse.json({ error: "Chiave API Gemini non configurata." }, { status: 500 });
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const prompt = `Analizza sinteticamente l'impatto ecologico del repository GitHub: ${repo_name}. 
 Basati sulle best practice di codice (se front-end o back-end, pattern tipici).
@@ -36,30 +50,43 @@ Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta:
 
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: "application/json" }
+      generationConfig: { 
+        responseMimeType: "application/json",
+        maxOutputTokens: 2048,
+        temperature: 0.7,
+      }
     });
 
     const responseText = result.response.text();
+    console.log("Gemini response (first 200 chars):", responseText.substring(0, 200));
+    
     const analysisInfo = JSON.parse(responseText);
 
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    // Save to history (non-blocking, don't crash if it fails)
+    try {
+      const supabase = await createClient();
+      const { data: { user } } = await supabase.auth.getUser();
 
-    if (user) {
-      await supabase.from('search_history').insert({
-        user_id: user.id,
-        github_url: url,
-        repo_name: repo_name,
-        energy_class: analysisInfo.energy_class,
-        co2_estimate: analysisInfo.co2_estimate,
-        efficiency_score: analysisInfo.efficiency_score,
-        ai_optimization_score: analysisInfo.ai_optimization_score,
-      });
+      if (user) {
+        await supabase.from('search_history').insert({
+          user_id: user.id,
+          github_url: decodedUrl,
+          repo_name: repo_name,
+          energy_class: analysisInfo.energy_class,
+          co2_estimate: analysisInfo.co2_estimate,
+          efficiency_score: analysisInfo.efficiency_score,
+          ai_optimization_score: analysisInfo.ai_optimization_score,
+        });
+      }
+    } catch (dbError) {
+      console.error("DB insert error (non-fatal):", dbError);
     }
 
     return NextResponse.json({ ...analysisInfo, repo_name });
   } catch (error: any) {
-    console.error("Analyze error:", error);
-    return NextResponse.json({ error: "Errore durante l'analisi con Gemini." }, { status: 500 });
+    console.error("Analyze error:", error?.message || error);
+    return NextResponse.json({ 
+      error: `Errore durante l'analisi: ${error?.message || 'errore sconosciuto'}` 
+    }, { status: 500 });
   }
 }
