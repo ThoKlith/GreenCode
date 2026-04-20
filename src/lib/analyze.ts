@@ -24,8 +24,8 @@ export async function analyzeRepository(url: string) {
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  // Usa gemini-1.5-flash-latest o gemini-pro come fallback, dato che gemini-1.5-flash dava 404 per v1beta su alcuni account
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+  // Utilizziamo gemini-flash-latest poiché i nuovi account non hanno più accesso alla 1.5
+  const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
   const prompt = `Analizza sinteticamente l'impatto ecologico del repository GitHub: ${repo_name}. 
 Basati sulle best practice di codice (se front-end o back-end, pattern tipici).
