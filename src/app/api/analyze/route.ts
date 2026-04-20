@@ -28,7 +28,8 @@ export async function POST(request: Request) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    // Use 1.5-flash as it has more generous free-tier limits
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `Analizza sinteticamente l'impatto ecologico del repository GitHub: ${repo_name}. 
 Basati sulle best practice di codice (se front-end o back-end, pattern tipici).
@@ -84,9 +85,16 @@ Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta:
 
     return NextResponse.json({ ...analysisInfo, repo_name });
   } catch (error: any) {
-    console.error("Analyze error:", error?.message || error);
-    return NextResponse.json({ 
-      error: `Errore durante l'analisi: ${error?.message || 'errore sconosciuto'}` 
-    }, { status: 500 });
+    const errorMsg = error?.message || String(error);
+    console.error("Analyze error details:", errorMsg);
+    
+    let userMessage = "Errore sconosciuto durante l'analisi.";
+    if (errorMsg.includes("429") || errorMsg.includes("quota")) {
+      userMessage = "Limite richieste API raggiunto. Attendi un minuto e riprova.";
+    } else if (errorMsg.includes("timeout")) {
+      userMessage = "L'analisi ha impiegato troppo tempo.";
+    }
+    
+    return NextResponse.json({ error: userMessage }, { status: 500 });
   }
 }
