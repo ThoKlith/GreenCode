@@ -1,42 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-
-function deterministicMock(url: string) {
-  // Generazione deterministica dal nome dell'url
-  const hash = url.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  
-  const classes = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-  const energyClass = classes[hash % classes.length];
-  
-  // Se è verde (A,B), meno emissioni, alta efficienza.
-  const isGood = ['A', 'B'].includes(energyClass);
-  const co2_estimate = isGood ? (hash % 50) / 10 + 1 : (hash % 500) / 10 + 50;
-  const efficiency_score = isGood ? 85 + (hash % 15) : 30 + (hash % 40);
-  const ai_optimization_score = isGood ? 90 + (hash % 10) : 40 + (hash % 40);
-
-  const snippets = [
-    {
-      id: "vuln-1",
-      filename: "src/utils/dataFetcher.ts",
-      description: "Chiamata ridondante in ciclo: Fetch di dati non ottimizzato che aumenta il carico server e consumo CPU.",
-      code: `for (let item of items) {\n  const data = await fetch(\`https://api.example.com/data/\${item.id}\`);\n  results.push(await data.json());\n}`
-    },
-    {
-      id: "vuln-2",
-      filename: "src/services/aiService.ts",
-      description: "Prompt LLM inefficiente: Invocazione ripetuta di ChatGPT senza batching, enorme spreco di compute.",
-      code: `async function translateTexts(texts: string[]) {\n  return Promise.all(texts.map(t => openai.chat.completions.create({\n    model: "gpt-4",\n    messages: [{role: "user", content: \`Traduci: \${t}\`}]\n  })));\n}`
-    }
-  ];
-
-  return {
-    energy_class: energyClass,
-    co2_estimate: parseFloat(co2_estimate.toFixed(2)),
-    efficiency_score,
-    ai_optimization_score,
-    snippets: isGood ? snippets.slice(0, 1) : snippets,
-  };
-}
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(request: Request) {
   try {
@@ -45,14 +9,39 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "URL GitHub non valido." }, { status: 400 });
     }
 
-    // Estrai il repo_name dall'url
     const parts = new URL(url).pathname.split('/').filter(Boolean);
     const repo_name = parts.length >= 2 ? `${parts[0]}/${parts[1]}` : url;
 
-    // Genera mock
-    const analysisInfo = deterministicMock(url);
+    // Use Gemini
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    // Salva nel db se utente loggato
+    const prompt = `Analizza sinteticamente l'impatto ecologico del repository GitHub: ${repo_name}. 
+Basati sulle best practice di codice (se front-end o back-end, pattern tipici).
+Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta:
+{
+  "energy_class": "lettera da A a G",
+  "co2_estimate": numero (stima fittizia realistica in kg),
+  "efficiency_score": numero (da 0 a 100),
+  "ai_optimization_score": numero (da 0 a 100),
+  "snippets": [
+    {
+      "id": "identificatore univoco es. vuln-1",
+      "filename": "nome file fittizio ma plausibile per il repo",
+      "description": "descrizione sintetica del problema ecologico di codice in italiano",
+      "code": "codice anti-pattern di esempio"
+    }
+  ]
+}`;
+
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { responseMimeType: "application/json" }
+    });
+
+    const responseText = result.response.text();
+    const analysisInfo = JSON.parse(responseText);
+
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -69,8 +58,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ ...analysisInfo, repo_name });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Analyze error:", error);
-    return NextResponse.json({ error: "Errore durante l'analisi." }, { status: 500 });
+    return NextResponse.json({ error: "Errore durante l'analisi con Gemini." }, { status: 500 });
   }
 }

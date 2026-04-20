@@ -1,25 +1,36 @@
 import { NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(request: Request) {
   try {
     const { code, filename } = await request.json();
 
-    // Mock della risposta di un LLM per il refactoring ecologico
-    await new Promise((resolve) => setTimeout(resolve, 1500)); // Simula network delay
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    let fixedCode = "";
+    const prompt = `Agisci come un esperto Green Software Engineer. Ti viene fornito uno pseudo-codice inefficiente da ottimizzare per ridurre calcolo CPU, rete o consumo server.
+Codice originale (file: ${filename}):
+\`\`\`
+${code}
+\`\`\`
 
-    if (filename.includes('dataFetcher')) {
-      fixedCode = `// Batch fetch per ridurre overhead di rete e CPU server\nconst ids = items.map(i => i.id).join(',');\nconst data = await fetch(\`https://api.example.com/data?ids=\${ids}\`);\nconst results = await data.json();`;
-    } else if (filename.includes('aiService')) {
-      fixedCode = `// Batch prompting per ridurre utilizzo API e GPU\nasync function translateTexts(texts: string[]) {\n  const response = await openai.chat.completions.create({\n    model: "gpt-4",\n    messages: [{role: "user", content: \`Traduci questo array JSON:\\n\${JSON.stringify(texts)}\`}]\n  });\n  return JSON.parse(response.choices[0].message.content || "[]");\n}`;
-    } else {
-      fixedCode = `// Codice ottimizzato\n${code}\n// Applicazioni di best practices per la performance applicate.`;
-    }
+Fornisci la versione rifattorizzata del codice per essere molto più ecosostenibile.
+Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta:
+{
+  "fixedCode": "il codice riscritto con commenti che spiegano l'ottimizzazione"
+}`;
 
-    return NextResponse.json({ fixedCode });
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { responseMimeType: "application/json" }
+    });
+
+    const responseText = result.response.text();
+    const data = JSON.parse(responseText);
+
+    return NextResponse.json({ fixedCode: data.fixedCode });
   } catch (error) {
     console.error("Eco-fix error:", error);
-    return NextResponse.json({ error: "Errore durante l'eco-fix." }, { status: 500 });
+    return NextResponse.json({ error: "Errore durante l'eco-fix con Gemini." }, { status: 500 });
   }
 }
