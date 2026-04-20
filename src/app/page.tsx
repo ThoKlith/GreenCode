@@ -2,6 +2,9 @@ import { Navbar } from "@/components/Navbar";
 import { SearchBar } from "@/components/SearchBar";
 import SearchHistory from "@/components/SearchHistory";
 import { ShieldAlert, Zap, Cpu } from "lucide-react";
+import { Suspense } from "react";
+
+export const dynamic = 'force-dynamic';
 
 export default function Home() {
   return (
@@ -53,7 +56,9 @@ export default function Home() {
         </div>
 
         {/* Server component per history (richiede Auth) */}
-        <SearchHistory />
+        <Suspense fallback={<div className="mt-16 text-muted-foreground text-sm">Caricamento storico...</div>}>
+          <SearchHistory />
+        </Suspense>
       </div>
     </main>
   );
