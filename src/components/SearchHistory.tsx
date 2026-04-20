@@ -5,10 +5,11 @@ import { Activity, Clock } from "lucide-react";
 import Link from "next/link";
 
 export default async function SearchHistory() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) return null;
+    if (!user) return null;
 
   const { data: history } = await supabase
     .from("search_history")
@@ -70,4 +71,8 @@ export default async function SearchHistory() {
       </div>
     </div>
   );
+  } catch (error) {
+    console.error("SearchHistory error:", error);
+    return null;
+  }
 }
