@@ -129,5 +129,11 @@
   }
   html {
     @apply font-sans;
+    scrollbar-gutter: stable;
+  }
+  body, body[data-scroll-locked] {
+    padding-right: 0 !important;
+    margin-right: 0 !important;
+    --removed-body-scroll-bar-size: 0px !important;
   }
 }
