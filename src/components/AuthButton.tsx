@@ -61,11 +61,13 @@ export default function AuthButton() {
   if (user) {
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger className="relative h-8 w-8 rounded-full border border-primary/50 shadow-[0_0_8px_rgba(20,250,150,0.3)] flex items-center justify-center outline-none">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email} />
-            <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
-          </Avatar>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="relative h-10 w-10 rounded-full border border-primary/30 hover:border-primary/80 shadow-[0_0_10px_rgba(20,250,150,0.2)] hover:shadow-[0_0_15px_rgba(20,250,150,0.4)] transition-all p-0 overflow-hidden">
+            <Avatar className="h-full w-full">
+              <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email} />
+              <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+            </Avatar>
+          </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end">
           <div className="px-2 py-1.5">
