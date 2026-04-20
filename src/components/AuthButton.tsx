@@ -60,7 +60,7 @@ export default function AuthButton() {
 
   if (user) {
     return (
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger className="relative h-10 w-10 rounded-full border border-primary/30 hover:border-primary/80 shadow-[0_0_10px_rgba(20,250,150,0.2)] hover:shadow-[0_0_15px_rgba(20,250,150,0.4)] transition-all p-0 overflow-hidden outline-none cursor-pointer flex items-center justify-center">
           <Avatar className="h-full w-full">
             <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email} />
