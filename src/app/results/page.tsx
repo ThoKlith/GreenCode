@@ -6,6 +6,8 @@ import { VulnerabilitySnippet } from "@/components/VulnerabilitySnippet";
 import { Cloud, Cpu, Activity, AlertTriangle, Leaf } from "lucide-react";
 import { analyzeRepository } from "@/lib/analyze";
 
+export const maxDuration = 60; // Consente a Vercel di far girare la funzione per 60 secondi (utile per richieste LLM)
+
 export default async function ResultsPage({
   searchParams,
 }: {

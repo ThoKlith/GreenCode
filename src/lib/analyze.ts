@@ -56,7 +56,17 @@ Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta:
     });
 
     const responseText = result.response.text();
-    const analysisInfo = JSON.parse(responseText);
+    
+    // Pulisce l'eventuale formattazione markdown (```json ... ```) se Gemini la include per sbaglio
+    const cleanedText = responseText.replace(/```json\n?|\n?```/g, "").trim();
+    
+    let analysisInfo;
+    try {
+      analysisInfo = JSON.parse(cleanedText);
+    } catch (parseError: any) {
+      console.error("JSON Parse Error. Raw string was:", responseText);
+      throw new Error(`Il formato della risposta AI non era valido. Dettagli: ${parseError.message}`);
+    }
 
     // Salva nello storico in modo non bloccante
     try {
@@ -84,11 +94,12 @@ Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta:
     console.error("Analyze error details:", errorMsg);
     
     if (errorMsg.includes("429") || errorMsg.includes("quota")) {
-      throw new Error("Limite richieste API Server raggiunto. Attendi un minuto e riprova.");
-    } else if (errorMsg.includes("timeout")) {
-      throw new Error("L'analisi ha impiegato troppo tempo.");
+      throw new Error("Limite richieste API raggiunto. Attendi un minuto e riprova.");
+    } else if (errorMsg.includes("timeout") || errorMsg.includes("fetch failed")) {
+      throw new Error("L'analisi ha impiegato troppo tempo o c'è un problema di rete (Timeout).");
     }
     
-    throw new Error("Errore durante la generazione dell'analisi. Riprova più tardi.");
+    // Pass the real error forward so we can see what it actually is!
+    throw new Error(`Errore AI: ${errorMsg}`);
   }
 }
