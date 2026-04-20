@@ -4,8 +4,7 @@ import { EnergyBadge } from "@/components/EnergyBadge";
 import { MetricCard } from "@/components/MetricCard";
 import { VulnerabilitySnippet } from "@/components/VulnerabilitySnippet";
 import { Cloud, Cpu, Activity, AlertTriangle, Leaf } from "lucide-react";
-import { headers } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
+import { analyzeRepository } from "@/lib/analyze";
 
 export default async function ResultsPage({
   searchParams,
@@ -19,51 +18,23 @@ export default async function ResultsPage({
     redirect("/");
   }
 
-  // Prepara l'URL base del sito usando gli headers se in dev o la variabile d'ambiente
-  const headersList = await headers()
-  const domain = headersList.get('host') || 'localhost:3000'
-  const protocol = domain.includes('localhost') ? 'http' : 'https'
-  
-  // Esegui la fetch simulando ciò che fa il SearchBar
   let data;
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 25000); // 25s timeout
-
-    const res = await fetch(`${protocol}://${domain}/api/analyze`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: decodeURIComponent(repoUrl) }),
-      cache: "no-store",
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      return (
-        <main className="min-h-screen flex items-center justify-center flex-col space-y-4">
-          <AlertTriangle className="w-12 h-12 text-destructive" />
-          <h1 className="text-2xl font-bold">Errore di analisi</h1>
-          <p className="text-muted-foreground">{errorData.error || "Impossibile analizzare l'URL fornito."}</p>
-          <a href="/" className="text-primary underline mt-4">Torna alla home</a>
-        </main>
-      );
-    }
-
-    data = await res.json();
+    // Chiama la logica direttamente, evitando chiamate HTTP circolari su Vercel
+    data = await analyzeRepository(repoUrl);
   } catch (error: any) {
     return (
       <main className="min-h-screen flex items-center justify-center flex-col space-y-4">
         <AlertTriangle className="w-12 h-12 text-destructive" />
         <h1 className="text-2xl font-bold">Errore di analisi</h1>
         <p className="text-muted-foreground">
-          {error.name === 'AbortError' ? "L'analisi ha impiegato troppo tempo. Riprova." : "Errore di connessione al server."}
+          {error.message || "Errore di connessione o analisi fallita."}
         </p>
         <a href="/" className="text-primary underline mt-4">Torna alla home</a>
       </main>
     );
   }
+
   const isGood = ['A', 'B'].includes(data.energy_class);
 
   return (
