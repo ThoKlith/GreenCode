@@ -9,7 +9,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -69,14 +68,14 @@ export default function AuthButton() {
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end">
-          <DropdownMenuLabel className="font-normal">
+          <div className="px-2 py-1.5">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">{user.user_metadata?.full_name}</p>
               <p className="text-xs leading-none text-muted-foreground">
                 {user.email}
               </p>
             </div>
-          </DropdownMenuLabel>
+          </div>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout} className="text-destructive cursor-pointer">
             <LogOut className="mr-2 h-4 w-4" />
