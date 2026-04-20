@@ -131,9 +131,12 @@
     @apply font-sans;
     scrollbar-gutter: stable;
   }
-  body, body[data-scroll-locked] {
+  html[data-base-ui-scroll-locked] body {
+    overflow-y: scroll !important;
+    width: 100% !important;
+    position: static !important;
+    height: auto !important;
     padding-right: 0 !important;
     margin-right: 0 !important;
-    --removed-body-scroll-bar-size: 0px !important;
   }
 }
