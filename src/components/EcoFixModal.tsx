@@ -1,0 +1,105 @@
+"use client";
+
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Loader2, ArrowRight } from "lucide-react";
+
+interface EcoFixModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  snippet: {
+    id: string;
+    filename: string;
+    code: string;
+  };
+}
+
+export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
+  const [fixedCode, setFixedCode] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleFix = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/eco-fix", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: snippet.code, filename: snippet.filename })
+      });
+      const data = await res.json();
+      if (data.fixedCode) setFixedCode(data.fixedCode);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setTimeout(() => setFixedCode(null), 300);
+      onClose();
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogContent className="max-w-4xl bg-background/95 border-border backdrop-blur-xl">
+        <DialogHeader>
+          <DialogTitle className="text-2xl text-primary flex items-center">
+            Eco-Fix AI
+          </DialogTitle>
+          <DialogDescription>
+            Ottimizzazione assistita per {snippet.filename}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 relative">
+          
+          {/* Prima */}
+          <div className="bg-destructive/10 border border-destructive/20 rounded-xl overflow-hidden flex flex-col">
+            <div className="px-4 py-2 bg-destructive/20 text-xs font-semibold text-red-300">
+              PRIMA (Originale)
+            </div>
+            <pre className="p-4 overflow-auto text-sm font-mono text-red-200 flex-1">
+              <code>{snippet.code}</code>
+            </pre>
+          </div>
+
+          {/* Freccia */}
+          <div className="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-background rounded-full items-center justify-center border border-border z-10 shadow-lg">
+            <ArrowRight className="w-5 h-5 text-muted-foreground" />
+          </div>
+
+          {/* Dopo */}
+          <div className="bg-primary/10 border border-primary/20 rounded-xl overflow-hidden flex flex-col relative min-h-[150px]">
+             <div className="px-4 py-2 bg-primary/20 text-xs font-semibold text-emerald-300">
+              DOPO (Eco-Optimized)
+            </div>
+            {!fixedCode && !loading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-20">
+                <Button onClick={handleFix} className="shadow-[0_0_15px_rgba(20,250,150,0.4)]">
+                  Genera Refactoring AI
+                </Button>
+              </div>
+            )}
+            {loading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-20 flex-col space-y-4">
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                <p className="text-sm text-primary animate-pulse">L'intelligenza artificiale sta lavorando...</p>
+              </div>
+            )}
+            {fixedCode && (
+              <pre className="p-4 overflow-auto text-sm font-mono text-emerald-200 flex-1 bg-primary/5">
+                <code>{fixedCode}</code>
+              </pre>
+            )}
+          </div>
+
+        </div>
+
+      </DialogContent>
+    </Dialog>
+  );
+}
