@@ -108,7 +108,9 @@ Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta (NO
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || request.headers.get("origin") || 'http://localhost:3000';
+    const requestOrigin = new URL(request.url).origin;
+    const origin = request.headers.get("origin");
+    const baseUrl = requestOrigin || origin || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
     return NextResponse.json({
       success: true,

@@ -39,7 +39,9 @@ export async function POST(request: Request) {
     }
 
     // Ricava l'URL di base dinamicamente se possibile, altrimenti http://localhost:3000
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || request.headers.get("origin") || 'http://localhost:3000';
+    const requestOrigin = new URL(request.url).origin;
+    const origin = request.headers.get("origin");
+    const baseUrl = requestOrigin || origin || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
     return NextResponse.json({ 
       success: true, 

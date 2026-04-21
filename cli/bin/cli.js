@@ -64,7 +64,7 @@ program
 program
   .command('analyze')
   .description('Analizza la cartella corrente e genera un report reale')
-  .option('-h, --host <url>', 'URL della Web App EcoCode', process.env.ECOCODE_HOST || 'https://ecocode.app')
+  .option('-h, --host <url>', 'URL della Web App EcoCode', process.env.ECOCODE_HOST || 'https://green-code-swart.vercel.app')
   .option('-m, --max-files <n>', 'Numero massimo di file da analizzare', '35')
   .action(async (options) => {
     const maxFiles = parseInt(options.max_files || options.maxFiles, 10) || 35;
@@ -114,7 +114,10 @@ program
     spinner.start('Invio al server EcoCode per analisi AI con Gemini...');
 
     try {
-      const response = await fetch(`${options.host}/api/reports/local/analyze`, {
+      const host = String(options.host || '').replace(/\/+$/, '');
+      const endpoint = `${host}/api/reports/local/analyze`;
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -122,6 +125,13 @@ program
           source_code: sourceCodeBundle
         })
       });
+
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const raw = await response.text();
+        const preview = raw.slice(0, 120).replace(/\s+/g, ' ');
+        throw new Error(`Risposta non JSON da ${endpoint} (status ${response.status}). Anteprima: ${preview}`);
+      }
 
       const data = await response.json();
 
@@ -153,9 +163,10 @@ program
       spinner.fail(chalk.red('Analisi fallita.'));
       console.error(chalk.red(`\n❌ Errore: ${error.message}`));
       console.log(chalk.gray(`\nVerifica che:`));
-      console.log(chalk.gray(`  1. La Web App EcoCode sia in esecuzione su ${options.host}`));
+      console.log(chalk.gray(`  1. L'endpoint API sia raggiungibile su ${options.host}`));
+      console.log(chalk.gray(`     Suggerimento: ecocode analyze --host https://green-code-swart.vercel.app`));
       console.log(chalk.gray(`  2. La tabella 'local_reports' esista nel database Supabase`));
-      console.log(chalk.gray(`  3. La variabile GEMINI_API_KEY sia configurata nel .env.local\n`));
+      console.log(chalk.gray(`  3. Le variabili server (OPENROUTER_API_KEY/GEMINI_API_KEY) siano configurate in deploy\n`));
     }
   });
 
