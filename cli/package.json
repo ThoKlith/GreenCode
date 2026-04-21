@@ -1,11 +1,22 @@
 {
-  "name": "ecocode-cli",
+  "name": "ecocode",
   "version": "1.0.0",
   "description": "EcoCode CLI for local repository codebase analysis",
   "main": "bin/cli.js",
   "type": "module",
+  "license": "MIT",
+  "homepage": "https://ecocode.app",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin"
+  ],
   "bin": {
-    "ecocode": "./bin/cli.js"
+    "ecocode": "bin/cli.js"
   },
   "scripts": {
     "start": "node ./bin/cli.js"

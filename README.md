@@ -9,11 +9,29 @@ Hai due modi (estremamente fighi) per usare EcoCode a seconda delle tue esigenze
 ### 1. 🌐 Web App (Per Repo Pubbliche)
 Hai un repository GitHub pubblico? Apri la pagina della Web App, inserisci l'URL del tuo progetto GitHub, e lascia che il nostro motore di analisi cloud calcoli l'Energy Score e ti offra consigli di refactoring visivi direttamente nella nostra dashboard premium.
 
-### 2. 💻 CLI Locale (Per Repo Private & Privacy Assoluta)
-Stai lavorando su codice aziendale off-limits per il web o repo privati? 
-Puoi usare la nostra **EcoCode CLI** Node.js. Installata in locale, scansionerà solo i metadati, senza mai inviare il tuo codice proprietario su cloud!
+### 2. 💻 CLI Locale (Per Repo Private)
+Stai lavorando su codice aziendale off-limits per il web o repo privati?
+Puoi usare la nostra **EcoCode CLI** Node.js. La scansione parte dalla tua macchina e viene inviato al server solo un bundle limitato necessario all'analisi, non l'intero repository.
 
-#### Installazione e Setup (In sviluppo)
+#### Installazione Utente Finale (consigliata)
+
+Apri la cartella del tuo progetto e lancia:
+
+```bash
+npx ecocode@latest analyze
+```
+
+Opzioni utili:
+
+```bash
+# usa un host diverso (es. staging o locale)
+npx ecocode@latest analyze --host http://localhost:3000
+
+# limita i file analizzati
+npx ecocode@latest analyze --max-files 50
+```
+
+#### Sviluppo locale della CLI (per contributor)
 
 Assicurati di aver clonato lo split-repo e di trovarti nella cartella `cli`.
 
@@ -35,10 +53,25 @@ Vai nel tuo progetto fiammante e scrivi:
 ecocode analyze
 ```
 
+#### Publish npm (maintainer)
+
+Per rendere disponibile la CLI a tutti via `npx ecocode@latest analyze`:
+
+1. Crea il secret `NPM_TOKEN` su GitHub (Settings > Secrets and variables > Actions).
+2. Incrementa la versione in `cli/package.json` (es. `npm version patch` dentro `cli`).
+3. Crea e pusha un tag release:
+
+```bash
+git tag ecocode-v1.0.1
+git push origin ecocode-v1.0.1
+```
+
+Il workflow `.github/workflows/publish-cli.yml` pubblichera automaticamente su npm.
+
 #### Cosa fa la CLI in background?
-- Stima i costi e gli sprechi di cicli del processore.
-- Restituisce a terminale il punteggio A-G del tuo progetto in secondi.
-- **Privacy By Design**: Manda alla WebApp solo i Metadati con un UUID anonimo, e ti restituisce un link per visualizzare in una fantastica UI i risultati.
+- Scansiona il progetto in locale e seleziona i file rilevanti per l'analisi.
+- Invia al backend un bundle limitato con il contenuto necessario a calcolare metriche e suggerimenti AI.
+- Restituisce classe energetica, punteggi e un link alla dashboard con il report completo.
 
 --- 
 

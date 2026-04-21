@@ -64,7 +64,7 @@ program
 program
   .command('analyze')
   .description('Analizza la cartella corrente e genera un report reale')
-  .option('-h, --host <url>', 'URL della Web App EcoCode', 'http://localhost:3000')
+  .option('-h, --host <url>', 'URL della Web App EcoCode', process.env.ECOCODE_HOST || 'https://ecocode.app')
   .option('-m, --max-files <n>', 'Numero massimo di file da analizzare', '35')
   .action(async (options) => {
     const maxFiles = parseInt(options.max_files || options.maxFiles, 10) || 35;

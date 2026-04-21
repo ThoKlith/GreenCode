@@ -5,7 +5,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 
 const terminalLines = [
-  { text: "$ npx ecocode analyze", color: "text-emerald-400", delay: 0 },
+  { text: "$ npx ecocode@latest analyze", color: "text-emerald-400", delay: 0 },
   { text: "", color: "", delay: 0.3 },
   { text: "🌱 EcoCode CLI - Analisi Reale del Codice Sorgente", color: "text-emerald-300 font-bold", delay: 0.5 },
   { text: "", color: "", delay: 0.7 },
@@ -30,7 +30,7 @@ export function CliSection() {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText("npx ecocode analyze");
+    navigator.clipboard.writeText("npx ecocode@latest analyze");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -56,8 +56,8 @@ export function CliSection() {
           </span>
         </h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Con la nostra CLI il tuo codice non lascia mai il tuo computer. 
-          Analizziamo solo i metadati per generare il report visivo — zero upload di sorgente.
+          Con la CLI analizzi il progetto dalla tua macchina e ottieni un report completo in pochi secondi.
+          Per generare i suggerimenti AI, viene inviato al server un bundle limitato di file sorgente selezionati.
         </p>
       </motion.div>
 
@@ -122,13 +122,13 @@ export function CliSection() {
               <h3 className="font-semibold text-lg">Installa ed esegui</h3>
             </div>
             <p className="text-muted-foreground text-sm mb-4">
-              Un solo comando. Nessuna configurazione. Funziona con qualsiasi progetto.
+              Un solo comando. Richiede Node.js 18+ e connessione Internet.
             </p>
             <button
               onClick={handleCopy}
               className="w-full flex items-center justify-between bg-[oklch(0.10_0_0)] border border-white/10 rounded-lg px-4 py-3 font-mono text-sm text-emerald-400 hover:border-primary/40 transition-all duration-200 cursor-pointer group"
             >
-              <span>$ npx ecocode analyze</span>
+              <span>$ npx ecocode@latest analyze</span>
               {copied ? (
                 <Check className="w-4 h-4 text-emerald-400" />
               ) : (
@@ -146,8 +146,8 @@ export function CliSection() {
               <h3 className="font-semibold text-lg">Analisi in locale</h3>
             </div>
             <p className="text-muted-foreground text-sm">
-              La CLI scansiona il tuo progetto localmente, identifica le inefficienze energetiche reali e calcola le metriche di sostenibilità. 
-              <strong className="text-foreground"> Il tuo codice sorgente non viene mai caricato online.</strong>
+              La CLI scansiona il progetto localmente, seleziona i file rilevanti e invia un bundle limitato al motore di analisi.
+              <strong className="text-foreground"> Il report viene poi salvato e mostrato nella dashboard web con link dedicato.</strong>
             </p>
           </div>
 
@@ -169,8 +169,7 @@ export function CliSection() {
           <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/15">
             <Shield className="w-5 h-5 text-emerald-400 shrink-0" />
             <p className="text-sm text-emerald-300/80">
-              <strong className="text-emerald-400">Privacy by Design</strong> — Solo metadati anonimi (punteggi, nomi file) 
-              vengono inviati al server. Mai il codice sorgente.
+              <strong className="text-emerald-400">Privacy by Design</strong> — La scansione avviene in locale e al server viene inviato solo il bundle necessario all'analisi, non l'intero repository.
             </p>
           </div>
         </motion.div>
