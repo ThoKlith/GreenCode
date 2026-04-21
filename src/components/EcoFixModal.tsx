@@ -38,14 +38,15 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setTimeout(() => setFixedCode(null), 300);
       onClose();
+      // Reset dopo che l'animazione di chiusura è consegnata
+      setTimeout(() => setFixedCode(null), 300);
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-4xl bg-background/95 border-border backdrop-blur-xl">
+      <DialogContent className="max-w-[95vw] lg:max-w-5xl xl:max-w-6xl max-h-[90vh] overflow-y-auto bg-background/95 border-border backdrop-blur-xl">
         <DialogHeader>
           <DialogTitle className="text-2xl text-primary flex items-center">
             Eco-Fix AI
@@ -62,7 +63,7 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
             <div className="px-4 py-2 bg-destructive/20 text-xs font-semibold text-red-300">
               PRIMA (Originale)
             </div>
-            <pre className="p-4 overflow-auto text-sm font-mono text-red-200 flex-1">
+            <pre className="p-4 overflow-auto text-sm font-mono text-red-200 flex-1 whitespace-pre-wrap break-words max-h-[50vh]">
               <code>{snippet.code}</code>
             </pre>
           </div>
@@ -73,25 +74,25 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
           </div>
 
           {/* Dopo */}
-          <div className="bg-primary/10 border border-primary/20 rounded-xl overflow-hidden flex flex-col relative min-h-[150px]">
+          <div className="bg-primary/10 border border-primary/20 rounded-xl overflow-hidden flex flex-col relative min-h-[200px]">
              <div className="px-4 py-2 bg-primary/20 text-xs font-semibold text-emerald-300">
               DOPO (Eco-Optimized)
             </div>
             {!fixedCode && !loading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-20">
-                <Button onClick={handleFix} className="shadow-[0_0_15px_rgba(20,250,150,0.4)]">
+              <div className="flex-1 flex items-center justify-center p-8">
+                <Button onClick={handleFix} size="lg" className="shadow-[0_0_15px_rgba(20,250,150,0.4)]">
                   Genera Refactoring AI
                 </Button>
               </div>
             )}
             {loading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-20 flex-col space-y-4">
+              <div className="flex-1 flex items-center justify-center flex-col space-y-4 p-8">
                 <Loader2 className="w-8 h-8 text-primary animate-spin" />
                 <p className="text-sm text-primary animate-pulse">L'intelligenza artificiale sta lavorando...</p>
               </div>
             )}
             {fixedCode && (
-              <pre className="p-4 overflow-auto text-sm font-mono text-emerald-200 flex-1 bg-primary/5">
+              <pre className="p-4 overflow-auto text-sm font-mono text-emerald-200 flex-1 bg-primary/5 whitespace-pre-wrap break-words max-h-[50vh]">
                 <code>{fixedCode}</code>
               </pre>
             )}

@@ -37,27 +37,33 @@ async function fetchGithubFiles(repoOwner: string, repoName: string, token?: str
     return allowedExtensions.includes(ext);
   });
 
-  // Limite ~30 file per non sforare troppo in richieste o nei Token dell'AI
-  files = files.slice(0, 30);
+  // Limite ~20 file per ottimizzare tempi su Vercel (serverless timeout)
+  files = files.slice(0, 20);
 
   let combinedCode = "";
 
-  // 4. Estrae i raw content
-  for (const file of files) {
-    try {
-      // Uso l'API ufficiale di contenuto Github che eredita l'autorizzazione al posto di raw.githubusercontent.com
-      const contentUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${file.path}?ref=${defaultBranch}`;
-      const cHeaders = { ...headers, 'Accept': 'application/vnd.github.v3.raw' };
-      
-      const rawRes = await fetch(contentUrl, { headers: cHeaders });
-      if (rawRes.ok) {
-        const text = await rawRes.text();
-        if (text.length < 80000) { // Saltiamo bundle colossali oltre ~80KB testuali
-          combinedCode += `\n--- FILE: ${file.path} ---\n${text}\n\n`;
+  // 4. Scarica i file in parallelo a batch di 5 per velocizzare
+  const BATCH_SIZE = 5;
+  for (let i = 0; i < files.length; i += BATCH_SIZE) {
+    const batch = files.slice(i, i + BATCH_SIZE);
+    const results = await Promise.allSettled(
+      batch.map(async (file: any) => {
+        const contentUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${file.path}?ref=${defaultBranch}`;
+        const cHeaders = { ...headers, 'Accept': 'application/vnd.github.v3.raw' };
+        const rawRes = await fetch(contentUrl, { headers: cHeaders });
+        if (rawRes.ok) {
+          const text = await rawRes.text();
+          if (text.length < 50000) { // Saltiamo file oltre ~50KB
+            return `\n--- FILE: ${file.path} ---\n${text}\n\n`;
+          }
         }
+        return "";
+      })
+    );
+    for (const r of results) {
+      if (r.status === "fulfilled" && r.value) {
+        combinedCode += r.value;
       }
-    } catch (e) {
-      console.warn(`Impossibile leggere file ${file.path}`);
     }
   }
 
