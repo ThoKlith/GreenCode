@@ -1,6 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { SearchBar } from "@/components/SearchBar";
 import SearchHistory from "@/components/SearchHistory";
+import { CliSection } from "@/components/CliSection";
 import { ShieldAlert, Zap, Cpu } from "lucide-react";
 import { Suspense } from "react";
 
@@ -17,6 +18,7 @@ export default function Home() {
 
       <Navbar />
 
+      {/* Hero Section */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-20 text-center relative z-10 w-full animate-in fade-in slide-in-from-bottom-8 duration-700">
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
           Scopri l'impatto <br />
@@ -59,6 +61,11 @@ export default function Home() {
         <Suspense fallback={<div className="mt-16 text-muted-foreground text-sm">Caricamento storico...</div>}>
           <SearchHistory />
         </Suspense>
+      </div>
+
+      {/* Sezione CLI Locale */}
+      <div className="relative z-10">
+        <CliSection />
       </div>
     </main>
   );
