@@ -27,8 +27,8 @@ Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta:
       },
       body: JSON.stringify({
         "models": [
-          "google/gemini-2.0-flash-exp:free",
-          "meta-llama/llama-3-8b-instruct:free"
+          "meta-llama/llama-3.3-70b-instruct:free",
+          "openrouter/free"
         ],
         "messages": [{ "role": "user", "content": prompt }],
         "response_format": { "type": "json_object" }
