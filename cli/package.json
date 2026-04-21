@@ -1,0 +1,18 @@
+{
+  "name": "ecocode-cli",
+  "version": "1.0.0",
+  "description": "EcoCode CLI for local repository codebase analysis",
+  "main": "bin/cli.js",
+  "type": "module",
+  "bin": {
+    "ecocode": "./bin/cli.js"
+  },
+  "scripts": {
+    "start": "node ./bin/cli.js"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0",
+    "ora": "^8.0.1"
+  }
+}

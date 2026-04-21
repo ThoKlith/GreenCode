@@ -34,3 +34,30 @@ CREATE POLICY "Users can delete their own search history"
 
 -- Create index on user_id for faster lookups
 CREATE INDEX IF NOT EXISTS search_history_user_id_idx ON public.search_history(user_id);
+
+-- Create the local_reports table for the CLI app
+CREATE TABLE IF NOT EXISTS public.local_reports (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  project_name TEXT NOT NULL,
+  energy_class VARCHAR(5) NOT NULL,
+  co2_estimate DECIMAL NOT NULL,
+  efficiency_score INTEGER NOT NULL,
+  ai_optimization_score INTEGER NOT NULL,
+  snippets JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
+);
+
+-- Enable Row Level Security (RLS) for local_reports
+ALTER TABLE public.local_reports ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Anyone can insert a new local report anonymously (CLI usage)
+CREATE POLICY "Anyone can insert local reports" 
+  ON public.local_reports 
+  FOR INSERT 
+  WITH CHECK (true);
+
+-- Policy: Anyone can read a local report if they have the ID (UUID)
+CREATE POLICY "Anyone can read local reports by id" 
+  ON public.local_reports 
+  FOR SELECT 
+  USING (true);

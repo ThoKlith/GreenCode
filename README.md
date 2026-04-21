@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌱 EcoCode - Intelligent Code Sustainability
 
-## Getting Started
+EcoCode è un portale Web e un tool da riga di comando (CLI) studiato per analizzare automaticamente la sostenibilità, le performance energetiche e l'impatto di un progetto software. Identifica i colli di bottiglia energetici, ottimizza le query ed evidenzia componenti UI lenti che fanno sprecare batteria ai dispositivi dei tuoi utenti.
 
-First, run the development server:
+## Modalità d'uso
 
+Hai due modi (estremamente fighi) per usare EcoCode a seconda delle tue esigenze:
+
+### 1. 🌐 Web App (Per Repo Pubbliche)
+Hai un repository GitHub pubblico? Apri la pagina della Web App, inserisci l'URL del tuo progetto GitHub, e lascia che il nostro motore di analisi cloud calcoli l'Energy Score e ti offra consigli di refactoring visivi direttamente nella nostra dashboard premium.
+
+### 2. 💻 CLI Locale (Per Repo Private & Privacy Assoluta)
+Stai lavorando su codice aziendale off-limits per il web o repo privati? 
+Puoi usare la nostra **EcoCode CLI** Node.js. Installata in locale, scansionerà solo i metadati, senza mai inviare il tuo codice proprietario su cloud!
+
+#### Installazione e Setup (In sviluppo)
+
+Assicurati di aver clonato lo split-repo e di trovarti nella cartella `cli`.
+
+1. Installa i pacchetti per la CLI:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd cli
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Collega il comando `ecocode` globalmente sul tuo terminale locale per sviluppo:
+```bash
+npm link
+```
+*(Da questo momento in poi puoi lanciare `ecocode` in qualunque cartella del tuo PC)*
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Analizza una cartella sorgente locale:
+Vai nel tuo progetto fiammante e scrivi:
+```bash
+ecocode analyze
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+#### Cosa fa la CLI in background?
+- Stima i costi e gli sprechi di cicli del processore.
+- Restituisce a terminale il punteggio A-G del tuo progetto in secondi.
+- **Privacy By Design**: Manda alla WebApp solo i Metadati con un UUID anonimo, e ti restituisce un link per visualizzare in una fantastica UI i risultati.
 
-## Learn More
+--- 
 
-To learn more about Next.js, take a look at the following resources:
+## Sviluppo Interno
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Assicurati di impostare la variabile di ambiente in `.env.local` con i tuoi accessi `NEXT_PUBLIC_SUPABASE_URL` e chiavi Gemini se lavori alla parte Web.
+2. Esegui il dump `schema.sql` all'interno del progetto editor Supabase. In questo modo attivi la memorizzazione dei report `local_reports` e le RLS aperte per il CLI.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+© 2026 EcoCode. Made with 💚.

@@ -1,12 +1,75 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@/lib/supabase/server';
 
+async function fetchGithubFiles(repoOwner: string, repoName: string, token?: string) {
+  const headers: Record<string, string> = {
+    'Accept': 'application/vnd.github.v3+json',
+    'User-Agent': 'EcoCode-App'
+  };
+  if (token) {
+    headers['Authorization'] = `token ${token}`;
+  }
+
+  // 1. Prendi il ramo principale
+  const repoRes = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}`, { headers });
+  if (!repoRes.ok) {
+    throw new Error(`Impossibile trovare la repository. Potrebbe essere privata o potresti aver esaurito il Rate Limit (60 req/h senza token).`);
+  }
+  const repoInfo = await repoRes.json();
+  const defaultBranch = repoInfo.default_branch;
+
+  // 2. Naviga l'albero
+  const treeUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/git/trees/${defaultBranch}?recursive=1`;
+  const treeRes = await fetch(treeUrl, { headers });
+  if (!treeRes.ok) throw new Error("Impossibile leggere l'albero dei file dal repository.");
+  const treeData = await treeRes.json();
+
+  // 3. Filtra file sorgente interessanti per web e scripting
+  const allowedExtensions = ['.js', '.jsx', '.ts', '.tsx', '.py', '.java', '.go', '.rs', '.css', '.html', '.php'];
+  let files = treeData.tree.filter((file: any) => {
+    if (file.type !== 'blob') return false;
+    const p = file.path.toLowerCase();
+    // Escludiamo cartelle build/vendor standard
+    if (p.includes('node_modules/') || p.includes('dist/') || p.includes('build/') || p.includes('.next/') || p.includes('vendor/')) {
+      return false;
+    }
+    const ext = p.slice((Math.max(0, p.lastIndexOf(".")) || Infinity));
+    return allowedExtensions.includes(ext);
+  });
+
+  // Limite ~30 file per non sforare troppo in richieste o nei Token dell'AI
+  files = files.slice(0, 30);
+
+  let combinedCode = "";
+
+  // 4. Estrae i raw content
+  for (const file of files) {
+    try {
+      // Uso l'API ufficiale di contenuto Github che eredita l'autorizzazione al posto di raw.githubusercontent.com
+      const contentUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${file.path}?ref=${defaultBranch}`;
+      const cHeaders = { ...headers, 'Accept': 'application/vnd.github.v3.raw' };
+      
+      const rawRes = await fetch(contentUrl, { headers: cHeaders });
+      if (rawRes.ok) {
+        const text = await rawRes.text();
+        if (text.length < 80000) { // Saltiamo bundle colossali oltre ~80KB testuali
+          combinedCode += `\n--- FILE: ${file.path} ---\n${text}\n\n`;
+        }
+      }
+    } catch (e) {
+      console.warn(`Impossibile leggere file ${file.path}`);
+    }
+  }
+
+  return combinedCode;
+}
+
+
 export async function analyzeRepository(url: string) {
   if (!url || !url.includes('github.com')) {
     throw new Error("URL GitHub non valido.");
   }
 
-  // Decode the URL in case it's double-encoded
   const decodedUrl = decodeURIComponent(url);
   
   let parts;
@@ -15,49 +78,71 @@ export async function analyzeRepository(url: string) {
   } catch {
     parts = decodedUrl.replace('https://github.com/', '').split('/').filter(Boolean);
   }
-  const repo_name = parts.length >= 2 ? `${parts[0]}/${parts[1]}` : decodedUrl;
+
+  if (parts.length < 2) {
+    throw new Error("Formato repository invalido. Usa owner/repo.");
+  }
+
+  const repoOwner = parts[0];
+  const repoNameInfo = parts[1];
+  const repo_name = `${repoOwner}/${repoNameInfo}`;
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.error("GEMINI_API_KEY is not set");
     throw new Error("Chiave API Gemini non configurata.");
   }
 
+  // Preleva il vero codice sorgente limitato
+  const githubToken = process.env.GITHUB_TOKEN || '';
+  const sourceCodeBundle = await fetchGithubFiles(repoOwner, repoNameInfo, githubToken);
+
+  if (!sourceCodeBundle || sourceCodeBundle.length < 10) {
+    throw new Error("Nessun codice sorgente valevole trovato. La repository è vuota o supporta solo linguaggi non parsati.");
+  }
+
   const genAI = new GoogleGenerativeAI(apiKey);
-  // Utilizziamo gemini-flash-latest poiché i nuovi account non hanno più accesso alla 1.5
   const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
-  const prompt = `Analizza sinteticamente l'impatto ecologico del repository GitHub: ${repo_name}. 
-Basati sulle best practice di codice (se front-end o back-end, pattern tipici).
+  const prompt = `Agisci come esperto di Eco-Computing e ottimizzazione del software sostenibile.
+Ti fornirò un bundle contenente il listato di file di una vera repository: "${repo_name}". 
+
+Il tuo compito è analizzare **QUESTO SPECIFICO CODICE REALE** per scovare vere inefficienze energetiche (come cicli CPU pesanti continui non ottimizzati, chiamate API senza memo/cache, re-render continui nei framework Web, font o import non messi correttamente ecc.).
+
+[SOURCE_CODE]
+${sourceCodeBundle}
+[/SOURCE_CODE]
+
+Basati ESCLUSIVAMENTE sui difetti che trovi in questo preciso sorgente fornito in alto. 
+NON INVENTARE FILES e preleva gli snippet da righe vere del codice.
+
 Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta:
 {
-  "energy_class": "lettera da A a G",
-  "co2_estimate": numero (stima fittizia realistica in kg),
+  "energy_class": "lettera da A a G (A è super green, G è un colabrodo energetico ecologico)",
+  "co2_estimate": numero (in base a quanto codice fai l'assunzione per difetto in kg),
   "efficiency_score": numero (da 0 a 100),
   "ai_optimization_score": numero (da 0 a 100),
   "snippets": [
     {
-      "id": "identificatore univoco es. vuln-1",
-      "filename": "nome file fittizio ma plausibile per il repo",
-      "description": "descrizione sintetica del problema ecologico di codice in italiano",
-      "code": "codice anti-pattern di esempio"
+      "id": "vuln-1",
+      "filename": "nome ESATTO del vero file tratto da [SOURCE_CODE]",
+      "description": "Una breve descrizione concreta dell'anti-pattern riscontrato per l'energia",
+      "code": "le esatte righe di codice incriminate lette tra il sorgente inviato (no mock)"
     }
   ]
-}`;
+}
+`;
 
   try {
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: { 
         responseMimeType: "application/json",
-        maxOutputTokens: 2048,
-        temperature: 0.7,
+        maxOutputTokens: 8192,
+        temperature: 0.2, // Riduco la creatività, voglio l'assoluta logica
       }
     });
 
     const responseText = result.response.text();
-    
-    // Pulisce l'eventuale formattazione markdown (```json ... ```) se Gemini la include per sbaglio
     const cleanedText = responseText.replace(/```json\n?|\n?```/g, "").trim();
     
     let analysisInfo;
@@ -68,7 +153,6 @@ Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta:
       throw new Error(`Il formato della risposta AI non era valido. Dettagli: ${parseError.message}`);
     }
 
-    // Salva nello storico in modo non bloccante
     try {
       const supabase = await createClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -99,7 +183,6 @@ Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta:
       throw new Error("L'analisi ha impiegato troppo tempo o c'è un problema di rete (Timeout).");
     }
     
-    // Pass the real error forward so we can see what it actually is!
     throw new Error(`Errore AI: ${errorMsg}`);
   }
 }
