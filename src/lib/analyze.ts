@@ -84,7 +84,8 @@ export async function analyzeRepository(url: string) {
   }
 
   const repoOwner = parts[0];
-  const repoNameInfo = parts[1];
+  // Rimuovi il suffisso .git se presente (es. repo.git -> repo)
+  const repoNameInfo = parts[1].replace(/\.git$/, '');
   const repo_name = `${repoOwner}/${repoNameInfo}`;
 
   const apiKey = process.env.GEMINI_API_KEY;
