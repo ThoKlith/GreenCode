@@ -37,13 +37,13 @@ async function fetchGithubFiles(repoOwner: string, repoName: string, token?: str
     return allowedExtensions.includes(ext);
   });
 
-  // Limite ~20 file per ottimizzare tempi su Vercel (serverless timeout)
-  files = files.slice(0, 20);
+  // Limite ~8 file principali per limitare lo spreco di token AI ed evitare l'errore 429 (Quota Limit)
+  files = files.slice(0, 8);
 
   let combinedCode = "";
 
-  // 4. Scarica i file in parallelo a batch di 5 per velocizzare
-  const BATCH_SIZE = 5;
+  // 4. Scarica i file
+  const BATCH_SIZE = 4;
   for (let i = 0; i < files.length; i += BATCH_SIZE) {
     const batch = files.slice(i, i + BATCH_SIZE);
     const results = await Promise.allSettled(
@@ -52,10 +52,12 @@ async function fetchGithubFiles(repoOwner: string, repoName: string, token?: str
         const cHeaders = { ...headers, 'Accept': 'application/vnd.github.v3.raw' };
         const rawRes = await fetch(contentUrl, { headers: cHeaders });
         if (rawRes.ok) {
-          const text = await rawRes.text();
-          if (text.length < 50000) { // Saltiamo file oltre ~50KB
-            return `\n--- FILE: ${file.path} ---\n${text}\n\n`;
+          let text = await rawRes.text();
+          // Tagliamo i file grandi: prendiamo massimo le prime 500 righe (~15000 char) per file
+          if (text.length > 20000) {
+             text = text.slice(0, 20000) + "\n...[TRUNCATED]";
           }
+          return `\n--- FILE: ${file.path} ---\n${text}\n\n`;
         }
         return "";
       })
@@ -65,6 +67,13 @@ async function fetchGithubFiles(repoOwner: string, repoName: string, token?: str
         combinedCode += r.value;
       }
     }
+  }
+
+  // Selezioniamo in via definitiva massimo ~60.000 caratteri complessivi da inviare al modello.
+  // 60k caratteri sono circa 15k token, molto al di sotto del limite di 1M token/minuto gratuito,
+  // garantendo l'immunità da blocchi 429 per l'invio troppo massivo.
+  if (combinedCode.length > 80000) {
+    combinedCode = combinedCode.slice(0, 80000) + "\n...[TRUNCATED BUNDLE]";
   }
 
   return combinedCode;
@@ -94,9 +103,9 @@ export async function analyzeRepository(url: string) {
   const repoNameInfo = parts[1].replace(/\.git$/, '');
   const repo_name = `${repoOwner}/${repoNameInfo}`;
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY || process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    throw new Error("Chiave API Gemini non configurata.");
+    throw new Error("Chiave API OpenRouter non configurata.");
   }
 
   // Preleva il vero codice sorgente limitato
@@ -106,9 +115,6 @@ export async function analyzeRepository(url: string) {
   if (!sourceCodeBundle || sourceCodeBundle.length < 10) {
     throw new Error("Nessun codice sorgente valevole trovato. La repository è vuota o supporta solo linguaggi non parsati.");
   }
-
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
   const prompt = `Agisci come esperto di Eco-Computing e ottimizzazione del software sostenibile.
 Ti fornirò un bundle contenente il listato di file di una vera repository: "${repo_name}". 
@@ -122,34 +128,52 @@ ${sourceCodeBundle}
 Basati ESCLUSIVAMENTE sui difetti che trovi in questo preciso sorgente fornito in alto. 
 NON INVENTARE FILES e preleva gli snippet da righe vere del codice.
 
-Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta:
+Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta (NO markdown, NO testo fuori dal JSON):
 {
-  "energy_class": "lettera da A a G (A è super green, G è un colabrodo energetico ecologico)",
-  "co2_estimate": numero (in base a quanto codice fai l'assunzione per difetto in kg),
-  "efficiency_score": numero (da 0 a 100),
-  "ai_optimization_score": numero (da 0 a 100),
+  "energy_class": "A",
+  "co2_estimate": 0.15,
+  "efficiency_score": 85,
+  "ai_optimization_score": 90,
   "snippets": [
     {
       "id": "vuln-1",
-      "filename": "nome ESATTO del vero file tratto da [SOURCE_CODE]",
-      "description": "Una breve descrizione concreta dell'anti-pattern riscontrato per l'energia",
-      "code": "le esatte righe di codice incriminate lette tra il sorgente inviato (no mock)"
+      "filename": "nome ESATTO del vero file",
+      "description": "Una breve descrizione",
+      "code": "le esatte righe incriminate"
     }
   ]
-}
-`;
+}`;
 
   try {
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { 
-        responseMimeType: "application/json",
-        maxOutputTokens: 8192,
-        temperature: 0.2, // Riduco la creatività, voglio l'assoluta logica
-      }
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://ecocode.app", 
+        "X-Title": "EcoCode",
+      },
+      body: JSON.stringify({
+        "models": [
+          "google/gemini-2.0-flash-exp:free",
+          "google/gemini-2.5-flash:free",
+          "meta-llama/llama-3.3-70b-instruct:free",
+          "mistralai/mistral-7b-instruct:free"
+        ],
+        "messages": [
+          { "role": "user", "content": prompt }
+        ],
+        "response_format": { "type": "json_object" },
+        "temperature": 0.2
+      })
     });
 
-    const responseText = result.response.text();
+    if (!res.ok) {
+        throw new Error(`OpenRouter Error: ${res.statusText}`);
+    }
+
+    const result = await res.json();
+    const responseText = result.choices[0].message.content;
     const cleanedText = responseText.replace(/```json\n?|\n?```/g, "").trim();
     
     let analysisInfo;

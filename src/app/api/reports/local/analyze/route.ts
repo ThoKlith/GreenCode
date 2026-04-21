@@ -16,16 +16,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY || process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: "Chiave API Gemini non configurata sul server." },
+        { error: "Chiave API OpenRouter non configurata sul server." },
         { status: 500 }
       );
     }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
     const prompt = `Agisci come esperto di Eco-Computing e ottimizzazione del software sostenibile.
 Ti fornirò un bundle contenente il listato di file di un vero progetto locale chiamato: "${project_name}".
@@ -39,32 +36,47 @@ ${source_code}
 Basati ESCLUSIVAMENTE sui difetti che trovi in questo preciso sorgente fornito in alto.
 NON INVENTARE FILES e preleva gli snippet da righe vere del codice.
 
-Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta:
+Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta (NO markdown, NO testo fuori dal JSON):
 {
-  "energy_class": "lettera da A a G (A è super green, G è un colabrodo energetico)",
-  "co2_estimate": numero (in kg, stima basata sulla complessità e inefficienze del codice analizzato),
-  "efficiency_score": numero (da 0 a 100),
-  "ai_optimization_score": numero (da 0 a 100),
+  "energy_class": "A",
+  "co2_estimate": 0.15,
+  "efficiency_score": 85,
+  "ai_optimization_score": 90,
   "snippets": [
     {
       "id": "vuln-1",
-      "filename": "nome ESATTO del vero file tratto da [SOURCE_CODE]",
-      "description": "Una breve descrizione concreta dell'anti-pattern riscontrato per l'energia",
-      "code": "le esatte righe di codice incriminate lette tra il sorgente inviato (no mock)"
+      "filename": "nome ESATTO del vero file",
+      "description": "Una breve descrizione",
+      "code": "le esatte righe incriminate"
     }
   ]
 }`;
 
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: "application/json",
-        maxOutputTokens: 8192,
-        temperature: 0.2,
-      }
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://ecocode.app",
+        "X-Title": "EcoCode"
+      },
+      body: JSON.stringify({
+        "models": [
+          "google/gemini-2.0-flash-exp:free",
+          "google/gemini-2.5-flash:free",
+          "meta-llama/llama-3.3-70b-instruct:free",
+          "mistralai/mistral-7b-instruct:free"
+        ],
+        "messages": [{ "role": "user", "content": prompt }],
+        "response_format": { "type": "json_object" },
+        "temperature": 0.2
+      })
     });
 
-    const responseText = result.response.text();
+    if (!res.ok) throw new Error("OpenRouter error: " + res.statusText);
+
+    const result = await res.json();
+    const responseText = result.choices[0].message.content;
     const cleanedText = responseText.replace(/```json\n?|\n?```/g, "").trim();
 
     let analysisInfo;
