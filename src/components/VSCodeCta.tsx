@@ -16,7 +16,7 @@ export function VSCodeCta() {
         </div>
 
         <a
-          href="https://marketplace.visualstudio.com/items?itemName=ecocode.ecocode"
+          href="https://marketplace.visualstudio.com/items?itemName=klith.ecocode-energy-lint-klith"
           target="_blank"
           rel="noreferrer"
           className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity"

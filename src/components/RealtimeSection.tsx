@@ -110,7 +110,7 @@ export function RealtimeSection() {
           </div>
 
           <a
-            href="https://marketplace.visualstudio.com/items?itemName=ecocode.ecocode"
+            href="https://marketplace.visualstudio.com/items?itemName=klith.ecocode-energy-lint-klith"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_10px_40px_rgba(16,185,129,0.25)]"

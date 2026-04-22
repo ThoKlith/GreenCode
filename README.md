@@ -90,7 +90,7 @@ Per l'Eco-Fix AI, l'estensione legge in automatico la chiave dal file `.env` del
 
 Se la chiave non e presente, riceverai una notifica gentile con link rapido per crearla.
 
-Marketplace (placeholder): https://marketplace.visualstudio.com/items?itemName=ecocode.ecocode
+Marketplace: https://marketplace.visualstudio.com/items?itemName=klith.ecocode-energy-lint-klith
 
 --- 
 

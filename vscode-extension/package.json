@@ -1,9 +1,9 @@
 {
-  "name": "ecocode-vscode",
+  "name": "ecocode-energy-lint-klith",
   "displayName": "EcoCode",
   "description": "Real-time eco-linting and AI-powered eco-fixes for JavaScript and TypeScript.",
   "version": "0.1.0",
-  "publisher": "ecocode",
+  "publisher": "klith",
   "license": "MIT",
   "engines": {
     "vscode": "^1.105.0"
