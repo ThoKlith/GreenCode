@@ -84,6 +84,8 @@ export default async function ResultsPage({
                 icon={<Cloud className="w-full h-full" />} 
                 delay={0.1}
                 theme={isGood ? "success" : "danger"}
+                infoTitle="Stima Emissioni CO2"
+                infoDescription="Indica una stima semplificata dell'impatto emissivo del progetto: più il valore è basso, più il codice risulta efficiente dal punto di vista energetico."
               />
               <MetricCard 
                 title="Efficienza Codice" 
@@ -92,6 +94,8 @@ export default async function ResultsPage({
                 icon={<Activity className="w-full h-full" />} 
                 delay={0.2}
                 theme={data.efficiency_score > 70 ? "success" : "neutral"}
+                infoTitle="Efficienza Codice"
+                infoDescription="Misura quanto il codice evita sprechi noti: query non ottimizzate, carichi inutili e pattern che aumentano il lavoro della CPU o del browser."
               />
               <MetricCard 
                 title="Ottimizzazione AI" 
@@ -100,6 +104,8 @@ export default async function ResultsPage({
                 icon={<Cpu className="w-full h-full" />} 
                 delay={0.3}
                 theme={data.ai_optimization_score > 80 ? "success" : "danger"}
+                infoTitle="Ottimizzazione AI"
+                infoDescription="Valuta quanto il progetto appare attento nell'uso di funzioni AI: meno chiamate ridondanti, meno loop costosi e meno configurazioni che sprecano token o tempo di calcolo."
               />
             </div>
           </div>
