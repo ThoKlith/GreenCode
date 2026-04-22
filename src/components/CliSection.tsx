@@ -1,6 +1,6 @@
 "use client";
 
-import { Terminal, Shield, ArrowRight, Copy, Check } from "lucide-react";
+import { Shield, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
@@ -56,8 +56,8 @@ export function CliSection() {
           </span>
         </h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Con la CLI analizzi il progetto dalla tua macchina e ottieni un report completo in pochi secondi.
-          Per generare i suggerimenti AI, viene inviato al server un bundle limitato di file sorgente selezionati.
+          Con la CLI analizzi il progetto direttamente sulla tua macchina con parsing AST locale.
+          Il server riceve solo metadati del report (punteggi, file e linee), mai il sorgente.
         </p>
       </motion.div>
 
@@ -146,8 +146,8 @@ export function CliSection() {
               <h3 className="font-semibold text-lg">Analisi in locale</h3>
             </div>
             <p className="text-muted-foreground text-sm">
-              La CLI scansiona il progetto localmente, seleziona i file rilevanti e invia un bundle limitato al motore di analisi.
-              <strong className="text-foreground"> Il report viene poi salvato e mostrato nella dashboard web con link dedicato.</strong>
+              La CLI scansiona JS/TS/React in locale, calcola score energetici e trova inefficienze con regole statiche AST.
+              <strong className="text-foreground"> Alla dashboard vengono inviati solo risultati e metadati tecnici (file/linea/categoria).</strong>
             </p>
           </div>
 
@@ -169,7 +169,7 @@ export function CliSection() {
           <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/15">
             <Shield className="w-5 h-5 text-emerald-400 shrink-0" />
             <p className="text-sm text-emerald-300/80">
-              <strong className="text-emerald-400">Privacy by Design</strong> — La scansione avviene in locale e al server viene inviato solo il bundle necessario all'analisi, non l'intero repository.
+              <strong className="text-emerald-400">Privacy by Design</strong> — Analisi AST 100% locale: nessuna riga di codice viene inviata al server.
             </p>
           </div>
         </motion.div>

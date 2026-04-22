@@ -1,10 +1,20 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
 import { EnergyBadge } from "@/components/EnergyBadge";
 import { MetricCard } from "@/components/MetricCard";
 import { VulnerabilitySnippet } from "@/components/VulnerabilitySnippet";
 import { Cloud, Cpu, Activity, AlertTriangle, Leaf } from "lucide-react";
 import { createClient } from '@/lib/supabase/server';
+
+type LocalSnippet = {
+  id: string;
+  filename: string;
+  description: string;
+  code?: string;
+  line?: number;
+  category?: string;
+};
 
 export default async function LocalReportPage({
   params,
@@ -31,9 +41,9 @@ export default async function LocalReportPage({
         <AlertTriangle className="w-12 h-12 text-destructive" />
         <h1 className="text-2xl font-bold">Report non trovato</h1>
         <p className="text-muted-foreground">
-          Il report locale che stai cercando potrebbe essere stato rimosso o l'ID non è valido.
+          Il report locale che stai cercando potrebbe essere stato rimosso o l&apos;ID non e valido.
         </p>
-        <a href="/" className="text-primary underline mt-4">Torna alla home</a>
+        <Link href="/" className="text-primary underline mt-4">Torna alla home</Link>
       </main>
     );
   }
@@ -104,7 +114,7 @@ export default async function LocalReportPage({
               
               <div className="space-y-6">
                 {data.snippets && data.snippets.length > 0 ? (
-                  data.snippets.map((snippet: any) => (
+                  (data.snippets as LocalSnippet[]).map((snippet) => (
                     <VulnerabilitySnippet key={snippet.id} snippet={snippet} />
                   ))
                 ) : (

@@ -1,10 +1,20 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
 import { EnergyBadge } from "@/components/EnergyBadge";
 import { MetricCard } from "@/components/MetricCard";
 import { VulnerabilitySnippet } from "@/components/VulnerabilitySnippet";
 import { Cloud, Cpu, Activity, AlertTriangle, Leaf } from "lucide-react";
 import { analyzeRepository } from "@/lib/analyze";
+
+type RepoSnippet = {
+  id: string;
+  filename: string;
+  description: string;
+  code?: string;
+  line?: number;
+  category?: string;
+};
 
 export const maxDuration = 60; // Consente a Vercel di far girare la funzione per 60 secondi (utile per richieste LLM)
 
@@ -20,19 +30,20 @@ export default async function ResultsPage({
     redirect("/");
   }
 
-  let data;
+  let data: Awaited<ReturnType<typeof analyzeRepository>>;
   try {
     // Chiama la logica direttamente, evitando chiamate HTTP circolari su Vercel
     data = await analyzeRepository(repoUrl);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Errore di connessione o analisi fallita.";
     return (
       <main className="min-h-screen flex items-center justify-center flex-col space-y-4">
         <AlertTriangle className="w-12 h-12 text-destructive" />
         <h1 className="text-2xl font-bold">Errore di analisi</h1>
         <p className="text-muted-foreground">
-          {error.message || "Errore di connessione o analisi fallita."}
+          {message}
         </p>
-        <a href="/" className="text-primary underline mt-4">Torna alla home</a>
+        <Link href="/" className="text-primary underline mt-4">Torna alla home</Link>
       </main>
     );
   }
@@ -103,7 +114,7 @@ export default async function ResultsPage({
               
               <div className="space-y-6">
                 {data.snippets && data.snippets.length > 0 ? (
-                  data.snippets.map((snippet: any) => (
+                  (data.snippets as RepoSnippet[]).map((snippet) => (
                     <VulnerabilitySnippet key={snippet.id} snippet={snippet} />
                   ))
                 ) : (

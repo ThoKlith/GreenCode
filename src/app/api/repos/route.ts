@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
+type GithubRepo = {
+  full_name: string;
+  html_url: string;
+  description: string | null;
+  language: string | null;
+  stargazers_count: number;
+  updated_at: string;
+};
+
 export async function GET() {
   try {
     const supabase = await createClient();
@@ -30,9 +39,9 @@ export async function GET() {
       return NextResponse.json({ repos: [] });
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as GithubRepo[];
 
-    const repos = data.map((repo: any) => ({
+    const repos = data.map((repo) => ({
       name: repo.full_name,
       url: repo.html_url,
       description: repo.description,

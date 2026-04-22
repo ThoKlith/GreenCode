@@ -6,8 +6,9 @@ export async function POST(request: Request) {
     const { url } = await request.json();
     const data = await analyzeRepository(url);
     return NextResponse.json(data);
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Errore sconosciuto";
     console.error("API /analyze error:", error);
-    return NextResponse.json({ error: error.message || "Errore sconosciuto" }, { status: 500 });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

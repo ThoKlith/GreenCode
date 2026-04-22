@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowRight } from "lucide-react";
+import { API_KEY_STORAGE, API_PROVIDER_STORAGE, inferProviderFromKey } from "@/lib/byok";
 
 interface EcoFixModalProps {
   isOpen: boolean;
@@ -11,26 +12,54 @@ interface EcoFixModalProps {
   snippet: {
     id: string;
     filename: string;
-    code: string;
+    code?: string;
   };
 }
 
 export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
   const [fixedCode, setFixedCode] = useState<string | null>(null);
+  const [inputCode, setInputCode] = useState(snippet.code || "");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFix = async () => {
+    setError(null);
+    const userApiKey = localStorage.getItem(API_KEY_STORAGE)?.trim() || "";
+    const provider = localStorage.getItem(API_PROVIDER_STORAGE) || inferProviderFromKey(userApiKey);
+
+    if (!userApiKey) {
+      setError("Inserisci prima la tua API Key da 'API Key' in alto a destra.");
+      return;
+    }
+
+    if (!inputCode.trim()) {
+      setError("Incolla prima il blocco di codice da ottimizzare.");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/eco-fix", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: snippet.code, filename: snippet.filename })
+        body: JSON.stringify({
+          code: inputCode,
+          filename: snippet.filename,
+          userApiKey,
+          provider,
+        })
       });
+
       const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Errore durante la generazione Eco-Fix.");
+        return;
+      }
+
       if (data.fixedCode) setFixedCode(data.fixedCode);
     } catch (e) {
       console.error(e);
+      setError("Errore di rete durante Eco-Fix.");
     } finally {
       setLoading(false);
     }
@@ -40,7 +69,11 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
     if (!open) {
       onClose();
       // Reset dopo che l'animazione di chiusura è consegnata
-      setTimeout(() => setFixedCode(null), 300);
+      setTimeout(() => {
+        setFixedCode(null);
+        setInputCode(snippet.code || "");
+        setError(null);
+      }, 300);
     }
   };
 
@@ -54,6 +87,7 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
           <DialogDescription>
             Ottimizzazione assistita per {snippet.filename}
           </DialogDescription>
+          {error && <p className="text-sm text-destructive mt-2">{error}</p>}
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 relative">
@@ -61,11 +95,19 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
           {/* Prima */}
           <div className="bg-destructive/10 border border-destructive/20 rounded-xl overflow-hidden flex flex-col">
             <div className="px-4 py-2 bg-destructive/20 text-xs font-semibold text-red-300">
-              PRIMA (Originale)
+              PRIMA (Originale, locale)
             </div>
-            <pre className="p-4 overflow-auto text-sm font-mono text-red-200 flex-1 whitespace-pre-wrap break-words max-h-[50vh]">
-              <code>{snippet.code}</code>
-            </pre>
+            <div className="p-4 flex-1 space-y-3">
+              <p className="text-xs text-red-200/80">
+                Per privacy il report salva solo metadati. Incolla qui il blocco di codice da ottimizzare.
+              </p>
+              <textarea
+                value={inputCode}
+                onChange={(e) => setInputCode(e.target.value)}
+                className="w-full min-h-[240px] bg-black/60 border border-white/10 rounded-md p-3 text-sm font-mono text-red-200"
+                placeholder="Incolla qui il codice del file per Eco-Fix"
+              />
+            </div>
           </div>
 
           {/* Freccia */}
@@ -88,7 +130,7 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
             {loading && (
               <div className="flex-1 flex items-center justify-center flex-col space-y-4 p-8">
                 <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                <p className="text-sm text-primary animate-pulse">L'intelligenza artificiale sta lavorando...</p>
+                <p className="text-sm text-primary animate-pulse">L&apos;intelligenza artificiale sta lavorando...</p>
               </div>
             )}
             {fixedCode && (

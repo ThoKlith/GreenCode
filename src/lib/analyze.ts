@@ -1,5 +1,17 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@/lib/supabase/server';
+
+type RepoInfo = {
+  default_branch: string;
+};
+
+type TreeNode = {
+  type: string;
+  path: string;
+};
+
+type TreeResponse = {
+  tree: TreeNode[];
+};
 
 async function fetchGithubFiles(repoOwner: string, repoName: string, token?: string) {
   const headers: Record<string, string> = {
@@ -15,18 +27,18 @@ async function fetchGithubFiles(repoOwner: string, repoName: string, token?: str
   if (!repoRes.ok) {
     throw new Error(`Impossibile trovare la repository. Potrebbe essere privata o potresti aver esaurito il Rate Limit (60 req/h senza token).`);
   }
-  const repoInfo = await repoRes.json();
+  const repoInfo = (await repoRes.json()) as RepoInfo;
   const defaultBranch = repoInfo.default_branch;
 
   // 2. Naviga l'albero
   const treeUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/git/trees/${defaultBranch}?recursive=1`;
   const treeRes = await fetch(treeUrl, { headers });
   if (!treeRes.ok) throw new Error("Impossibile leggere l'albero dei file dal repository.");
-  const treeData = await treeRes.json();
+  const treeData = (await treeRes.json()) as TreeResponse;
 
   // 3. Filtra file sorgente interessanti per web e scripting
   const allowedExtensions = ['.js', '.jsx', '.ts', '.tsx', '.py', '.java', '.go', '.rs', '.css', '.html', '.php'];
-  let files = treeData.tree.filter((file: any) => {
+  let files = treeData.tree.filter((file) => {
     if (file.type !== 'blob') return false;
     const p = file.path.toLowerCase();
     // Escludiamo cartelle build/vendor standard
@@ -47,7 +59,7 @@ async function fetchGithubFiles(repoOwner: string, repoName: string, token?: str
   for (let i = 0; i < files.length; i += BATCH_SIZE) {
     const batch = files.slice(i, i + BATCH_SIZE);
     const results = await Promise.allSettled(
-      batch.map(async (file: any) => {
+      batch.map(async (file) => {
         const contentUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${file.path}?ref=${defaultBranch}`;
         const cHeaders = { ...headers, 'Accept': 'application/vnd.github.v3.raw' };
         const rawRes = await fetch(contentUrl, { headers: cHeaders });
@@ -177,9 +189,10 @@ Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta (NO
     let analysisInfo;
     try {
       analysisInfo = JSON.parse(cleanedText);
-    } catch (parseError: any) {
+    } catch (parseError: unknown) {
+      const parseMessage = parseError instanceof Error ? parseError.message : String(parseError);
       console.error("JSON Parse Error. Raw string was:", responseText);
-      throw new Error(`Il formato della risposta AI non era valido. Dettagli: ${parseError.message}`);
+      throw new Error(`Il formato della risposta AI non era valido. Dettagli: ${parseMessage}`);
     }
 
     try {
@@ -202,8 +215,8 @@ Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta (NO
     }
 
     return { ...analysisInfo, repo_name };
-  } catch (error: any) {
-    const errorMsg = error?.message || String(error);
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
     console.error("Analyze error details:", errorMsg);
     
     if (errorMsg.includes("429") || errorMsg.includes("quota")) {

@@ -11,7 +11,7 @@ Hai un repository GitHub pubblico? Apri la pagina della Web App, inserisci l'URL
 
 ### 2. 💻 CLI Locale (Per Repo Private)
 Stai lavorando su codice aziendale off-limits per il web o repo privati?
-Puoi usare la nostra **EcoCode CLI** Node.js. La scansione parte dalla tua macchina e viene inviato al server solo un bundle limitato necessario all'analisi, non l'intero repository.
+Puoi usare la nostra **EcoCode CLI** Node.js. Il calcolo avviene in locale tramite analisi statica AST: il codice non viene inviato al backend.
 
 #### Installazione Utente Finale (consigliata)
 
@@ -69,9 +69,16 @@ git push origin ecocode-v1.0.1
 Il workflow `.github/workflows/publish-cli.yml` pubblichera automaticamente su npm.
 
 #### Cosa fa la CLI in background?
-- Scansiona il progetto in locale e seleziona i file rilevanti per l'analisi.
-- Invia al backend un bundle limitato con il contenuto necessario a calcolare metriche e suggerimenti AI.
-- Restituisce classe energetica, punteggi e un link alla dashboard con il report completo.
+- Scansiona JS/TS/React e calcola l'Energy Score al 100% in locale tramite parsing AST.
+- Rileva inefficienze (Frontend Bloat, Inefficienza DB, Spreco AI) direttamente sul PC dell'utente.
+- Invia al backend solo metadati del report (punteggi, filename, linea, categoria) per la dashboard visiva.
+- Nessuna riga di codice sorgente viene inviata al server.
+
+#### Eco-Fix BYOK (Bring Your Own Key)
+- Nella Web App apri `API Key` in alto a destra e salva la tua chiave (Gemini o OpenAI).
+- La chiave viene salvata in `localStorage` del browser e usata solo quando premi `Ottimizza con AI`.
+- Per mantenere privacy totale, incolli tu il codice da rifattorizzare nel modal Eco-Fix (non viene prelevato dal report remoto).
+- Se la chiave non e presente, EcoCode mostra un messaggio e non esegue chiamate AI server-side con chiavi del progetto.
 
 --- 
 

@@ -21,14 +21,14 @@ export default function Home() {
       {/* Hero Section */}
       <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-20 text-center relative z-10 w-full animate-in fade-in slide-in-from-bottom-8 duration-700">
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
-          Scopri l'impatto <br />
+          Scopri l&apos;impatto <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-[#4ADE80] to-[#2DD4BF] drop-shadow-lg">
             ecologico del codice
           </span>
         </h1>
         
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-10">
-          Incolla l'URL di una repository GitHub per analizzare l'efficienza energetica, le stime di CO2 e ottenere refactoring eco-sostenibili guidati dall'IA.
+          Incolla l&apos;URL di una repository GitHub per analizzare l&apos;efficienza energetica, le stime di CO2 e ottenere refactoring eco-sostenibili guidati dall&apos;IA.
         </p>
 
         <SearchBar />
@@ -38,21 +38,21 @@ export default function Home() {
             <Zap className="w-6 h-6 text-primary shrink-0 drop-shadow-[0_0_8px_rgba(20,250,150,0.5)]" />
             <div>
               <h3 className="font-semibold text-foreground">Classe Energetica</h3>
-              <p className="text-sm mt-1">Valuta l'impronta strutturale e l'efficienza computazionale del codice.</p>
+              <p className="text-sm mt-1">Valuta l&apos;impronta strutturale e l&apos;efficienza computazionale del codice.</p>
             </div>
           </div>
           <div className="flex items-start space-x-3">
             <Cpu className="w-6 h-6 text-primary shrink-0 drop-shadow-[0_0_8px_rgba(20,250,150,0.5)]" />
             <div>
               <h3 className="font-semibold text-foreground">Ottimizzazione AI</h3>
-              <p className="text-sm mt-1">Identifica chiamate ridondanti ai modelli LLM per diminuire l'uso GPU server-side.</p>
+              <p className="text-sm mt-1">Identifica chiamate ridondanti ai modelli LLM per diminuire l&apos;uso GPU server-side.</p>
             </div>
           </div>
           <div className="flex items-start space-x-3">
             <ShieldAlert className="w-6 h-6 text-primary shrink-0 drop-shadow-[0_0_8px_rgba(20,250,150,0.5)]" />
             <div>
               <h3 className="font-semibold text-foreground">Eco-Fix Snippets</h3>
-              <p className="text-sm mt-1">Rileva "code smells" dispendiosi e propone alternative ad alte prestazioni.</p>
+              <p className="text-sm mt-1">Rileva &quot;code smells&quot; dispendiosi e propone alternative ad alte prestazioni.</p>
             </div>
           </div>
         </div>

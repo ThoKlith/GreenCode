@@ -4,18 +4,31 @@ import { Badge } from "@/components/ui/badge";
 import { Activity, Clock } from "lucide-react";
 import Link from "next/link";
 
+type HistoryItem = {
+  id: string;
+  github_url: string;
+  repo_name: string;
+  energy_class: string;
+  efficiency_score: number;
+  created_at: string;
+};
+
 export default async function SearchHistory() {
-  try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+  const supabase = await createClient();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-    if (!user) return null;
+  if (userError || !user) return null;
 
-  const { data: history } = await supabase
+  const { data: history, error: historyError } = await supabase
     .from("search_history")
     .select("*")
     .order("created_at", { ascending: false })
     .limit(10);
+
+  if (historyError) {
+    console.error("SearchHistory error:", historyError);
+    return null;
+  }
 
   if (!history || history.length === 0) {
     return (
@@ -43,7 +56,7 @@ export default async function SearchHistory() {
         <h2>Le tue ultime analisi</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {history.map((item) => (
+        {(history as HistoryItem[]).map((item) => (
           <Link key={item.id} href={`/results?repo=${encodeURIComponent(item.github_url)}`}>
             <Card className="bg-card/50 backdrop-blur border-border/50 hover:border-primary/50 transition-all hover:bg-card/80 group overflow-hidden relative cursor-pointer">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -71,8 +84,4 @@ export default async function SearchHistory() {
       </div>
     </div>
   );
-  } catch (error) {
-    console.error("SearchHistory error:", error);
-    return null;
-  }
 }

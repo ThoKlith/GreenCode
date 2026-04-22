@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Leaf } from "lucide-react";
 import AuthButton from "./AuthButton";
+import { ApiKeySettingsButton } from "./ApiKeySettingsButton";
 
 export function Navbar() {
   return (
@@ -15,6 +16,7 @@ export function Navbar() {
           </span>
         </Link>
         <div className="flex flex-1 items-center justify-end space-x-4">
+          <ApiKeySettingsButton />
           <AuthButton />
         </div>
       </div>

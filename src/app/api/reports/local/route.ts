@@ -4,6 +4,13 @@ import { createClient } from '@/lib/supabase/server';
 export async function POST(request: Request) {
   try {
     const payload = await request.json();
+    if (typeof payload.source_code === 'string') {
+      return NextResponse.json(
+        { error: 'Payload non consentito: inviare solo metadati report, non source_code.' },
+        { status: 400 }
+      );
+    }
+
     const { 
       project_name, 
       energy_class, 
@@ -49,8 +56,9 @@ export async function POST(request: Request) {
       url: `${baseUrl}/report/${data.id}`
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Errore interno server";
     console.error("API /reports/local error:", error);
-    return NextResponse.json({ error: error.message || "Errore interno server" }, { status: 500 });
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
