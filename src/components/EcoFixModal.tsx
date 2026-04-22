@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowRight } from "lucide-react";
-import { API_KEY_STORAGE, API_PROVIDER_STORAGE, inferProviderFromKey } from "@/lib/byok";
 
 interface EcoFixModalProps {
   isOpen: boolean;
@@ -24,13 +23,6 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
 
   const handleFix = async () => {
     setError(null);
-    const userApiKey = localStorage.getItem(API_KEY_STORAGE)?.trim() || "";
-    const provider = localStorage.getItem(API_PROVIDER_STORAGE) || inferProviderFromKey(userApiKey);
-
-    if (!userApiKey) {
-      setError("Inserisci prima la tua API Key da 'API Key' in alto a destra.");
-      return;
-    }
 
     if (!inputCode.trim()) {
       setError("Incolla prima il blocco di codice da ottimizzare.");
@@ -45,8 +37,6 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
         body: JSON.stringify({
           code: inputCode,
           filename: snippet.filename,
-          userApiKey,
-          provider,
         })
       });
 

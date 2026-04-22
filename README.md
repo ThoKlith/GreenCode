@@ -74,11 +74,11 @@ Il workflow `.github/workflows/publish-cli.yml` pubblichera automaticamente su n
 - Invia al backend solo metadati del report (punteggi, filename, linea, categoria) per la dashboard visiva.
 - Nessuna riga di codice sorgente viene inviata al server.
 
-#### Eco-Fix BYOK (Bring Your Own Key)
-- Nella Web App apri `API Key` in alto a destra e salva la tua chiave (Gemini o OpenAI).
-- La chiave viene salvata in `localStorage` del browser e usata solo quando premi `Ottimizza con AI`.
-- Per mantenere privacy totale, incolli tu il codice da rifattorizzare nel modal Eco-Fix (non viene prelevato dal report remoto).
-- Se la chiave non e presente, EcoCode mostra un messaggio e non esegue chiamate AI server-side con chiavi del progetto.
+#### Eco-Fix (Web + locale)
+- Nella Web App pubblica non viene richiesto agli utenti di inserire API key personali.
+- Il pulsante Eco-Fix usa la chiave server-side configurata su deploy (es. `OPENROUTER_API_KEY`).
+- Se self-hosti in locale, imposta la stessa variabile in `.env.local` e avvia l'app.
+- Per privacy, il report locale salva solo metadati: quando apri Eco-Fix incolli manualmente il blocco di codice da ottimizzare.
 
 --- 
 
