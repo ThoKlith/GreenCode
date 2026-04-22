@@ -1,0 +1,61 @@
+{
+  "name": "ecocode-vscode",
+  "displayName": "EcoCode",
+  "description": "Real-time eco-linting and AI-powered eco-fixes for JavaScript and TypeScript.",
+  "version": "0.1.0",
+  "publisher": "ecocode",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Linters",
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact",
+    "onCommand:ecocode.applyEcoFix"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "ecocode.applyEcoFix",
+        "title": "EcoCode: Applica Eco-Fix AI"
+      }
+    ],
+    "configuration": {
+      "title": "EcoCode",
+      "properties": {
+        "ecocode.enableRealtime": {
+          "type": "boolean",
+          "default": true,
+          "description": "Abilita analisi EcoCode in tempo reale durante la scrittura."
+        },
+        "ecocode.analysisDebounceMs": {
+          "type": "number",
+          "default": 350,
+          "minimum": 100,
+          "maximum": 2000,
+          "description": "Delay (ms) prima di rilanciare l'analisi dopo modifiche al file."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "package": "vsce package"
+  },
+  "dependencies": {
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.105.0",
+    "eslint": "^9.39.1",
+    "@vscode/vsce": "^3.6.1"
+  }
+}

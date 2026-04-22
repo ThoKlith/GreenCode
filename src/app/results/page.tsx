@@ -4,6 +4,7 @@ import { Navbar } from "@/components/Navbar";
 import { EnergyBadge } from "@/components/EnergyBadge";
 import { MetricCard } from "@/components/MetricCard";
 import { VulnerabilitySnippet } from "@/components/VulnerabilitySnippet";
+import { VSCodeCta } from "@/components/VSCodeCta";
 import { Cloud, Cpu, Activity, AlertTriangle, Leaf } from "lucide-react";
 import { analyzeRepository } from "@/lib/analyze";
 
@@ -134,6 +135,8 @@ export default async function ResultsPage({
           </div>
 
         </div>
+
+        <VSCodeCta />
       </main>
     </div>
   );

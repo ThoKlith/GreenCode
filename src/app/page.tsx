@@ -2,6 +2,7 @@ import { Navbar } from "@/components/Navbar";
 import { SearchBar } from "@/components/SearchBar";
 import SearchHistory from "@/components/SearchHistory";
 import { CliSection } from "@/components/CliSection";
+import { RealtimeSection } from "@/components/RealtimeSection";
 import { ShieldAlert, Zap, Cpu } from "lucide-react";
 import { Suspense } from "react";
 
@@ -64,6 +65,10 @@ export default function Home() {
       </div>
 
       {/* Sezione CLI Locale */}
+      <div className="relative z-10">
+        <RealtimeSection />
+      </div>
+
       <div className="relative z-10">
         <CliSection />
       </div>
