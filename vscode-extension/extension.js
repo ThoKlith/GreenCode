@@ -10,6 +10,7 @@ const SUPPORTED_LANGUAGES = new Set([
   "typescript",
   "typescriptreact",
 ]);
+const ENV_CANDIDATES = [".env", ".env.local", ".env.development", ".env.example"];
 
 /** @type {vscode.DiagnosticCollection | undefined} */
 let diagnosticsCollection;
@@ -112,10 +113,10 @@ function activate(context) {
         return;
       }
 
-      const keyInfo = readApiKeyFromEnv(workspaceFolder.uri.fsPath);
+      const keyInfo = readApiKeysFromEnv(workspaceFolder.uri.fsPath);
       if (!keyInfo) {
         const choice = await vscode.window.showInformationMessage(
-          "Eco-Fix AI richiede OPENAI_API_KEY o GEMINI_API_KEY nel file .env della cartella aperta.",
+          "Eco-Fix AI richiede OPENAI_API_KEY o GEMINI_API_KEY in .env, .env.local, .env.development o .env.example.",
           "Apri .env"
         );
         if (choice === "Apri .env") {
@@ -128,17 +129,23 @@ function activate(context) {
       const snippet = document.getText(targetRange);
       const fileLabel = path.basename(document.fileName);
 
-      const replacement = await vscode.window.withProgress(
-        {
-          location: vscode.ProgressLocation.Notification,
-          title: "EcoCode: generazione Eco-Fix in corso...",
-          cancellable: false,
-        },
-        async () => {
-          const prompt = buildEcoFixPrompt(snippet, issueDescription, fileLabel);
-          return generateEcoFix(prompt, keyInfo);
-        }
-      );
+      let replacement;
+      try {
+        replacement = await vscode.window.withProgress(
+          {
+            location: vscode.ProgressLocation.Notification,
+            title: "EcoCode: generazione Eco-Fix in corso...",
+            cancellable: false,
+          },
+          async () => {
+            const prompt = buildEcoFixPrompt(snippet, issueDescription, fileLabel);
+            return generateEcoFix(prompt, keyInfo);
+          }
+        );
+      } catch (error) {
+        vscode.window.showErrorMessage(formatEcoFixError(error));
+        return;
+      }
 
       if (!replacement || !replacement.trim()) {
         vscode.window.showErrorMessage("Eco-Fix non ha restituito una proposta valida.");
@@ -309,41 +316,97 @@ function explainImpact(message) {
   return "Questa porzione di codice puo incrementare consumo computazionale e costo energetico complessivo.";
 }
 
-function readApiKeyFromEnv(workspaceRoot) {
-  const envPath = path.join(workspaceRoot, ".env");
-  if (!fs.existsSync(envPath)) {
-    return null;
-  }
-
-  const raw = fs.readFileSync(envPath, "utf8");
-  const lines = raw.split(/\r?\n/);
-
+function readApiKeysFromEnv(workspaceRoot) {
   let openai = null;
   let gemini = null;
 
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) continue;
-
-    const match = trimmed.match(/^([A-Z0-9_]+)\s*=\s*(.*)$/);
-    if (!match) continue;
-
-    const key = match[1];
-    let value = match[2].trim();
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
-      value = value.slice(1, -1);
+  for (const envName of ENV_CANDIDATES) {
+    const envPath = path.join(workspaceRoot, envName);
+    if (!fs.existsSync(envPath)) {
+      continue;
     }
 
-    if (key === "OPENAI_API_KEY" && value) openai = value;
-    if (key === "GEMINI_API_KEY" && value) gemini = value;
+    const raw = fs.readFileSync(envPath, "utf8");
+    const lines = raw.split(/\r?\n/);
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+
+      const match = trimmed.match(/^([A-Z0-9_]+)\s*=\s*(.*)$/);
+      if (!match) continue;
+
+      const key = match[1];
+      let value = match[2].trim();
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1);
+      }
+
+      if (key === "OPENAI_API_KEY" && value) openai = value;
+      if (key === "GEMINI_API_KEY" && value) gemini = value;
+    }
   }
 
-  if (openai) return { provider: "openai", apiKey: openai };
-  if (gemini) return { provider: "gemini", apiKey: gemini };
-  return null;
+  if (!openai && !gemini) return null;
+  return {
+    openaiApiKey: openai,
+    geminiApiKey: gemini,
+  };
+}
+
+function formatEcoFixError(error) {
+  const message = error instanceof Error ? error.message : String(error || "Errore sconosciuto");
+
+  if (/gemini api error:\s*429/i.test(message) || /exceeded your current quota/i.test(message)) {
+    return "Gemini ha superato la quota (429). Aggiungi credito/billing Gemini o configura OPENAI_API_KEY per il fallback automatico.";
+  }
+
+  if (/openai api error:\s*429/i.test(message)) {
+    return "OpenAI ha superato la quota (429). Controlla billing/limiti o configura GEMINI_API_KEY come alternativa.";
+  }
+
+  return `Eco-Fix non disponibile: ${message}`;
+}
+
+async function tryProviderEcoFix(provider, prompt, apiKey) {
+  if (provider === "gemini") {
+    const data = await callGemini(prompt, apiKey);
+    return data.fixedCode;
+  }
+
+  const data = await callOpenAI(prompt, apiKey);
+  return data.fixedCode;
+}
+
+async function generateEcoFix(prompt, keyInfo) {
+  const geminiKey = keyInfo?.geminiApiKey || null;
+  const openaiKey = keyInfo?.openaiApiKey || null;
+
+  if (!geminiKey && !openaiKey) {
+    throw new Error("Nessuna API key valida trovata.");
+  }
+
+  // Prefer Gemini first (costo spesso minore), con fallback automatico su OpenAI.
+  if (geminiKey) {
+    try {
+      return await tryProviderEcoFix("gemini", prompt, geminiKey);
+    } catch (geminiError) {
+      if (openaiKey) {
+        try {
+          return await tryProviderEcoFix("openai", prompt, openaiKey);
+        } catch {
+          throw geminiError;
+        }
+      }
+      throw geminiError;
+    }
+  }
+
+  // Solo OpenAI disponibile.
+  return tryProviderEcoFix("openai", prompt, openaiKey);
 }
 
 async function openOrCreateEnv(workspaceRoot) {
@@ -386,16 +449,6 @@ function buildEcoFixPrompt(snippet, issueDescription, filename) {
     snippet,
     "```",
   ].join("\n");
-}
-
-async function generateEcoFix(prompt, keyInfo) {
-  if (keyInfo.provider === "openai") {
-    const data = await callOpenAI(prompt, keyInfo.apiKey);
-    return data.fixedCode;
-  }
-
-  const data = await callGemini(prompt, keyInfo.apiKey);
-  return data.fixedCode;
 }
 
 async function callOpenAI(prompt, apiKey) {

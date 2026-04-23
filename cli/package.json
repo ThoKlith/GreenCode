@@ -1,6 +1,6 @@
 {
   "name": "ecocode",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "EcoCode CLI for local repository codebase analysis",
   "main": "bin/cli.js",
   "type": "module",

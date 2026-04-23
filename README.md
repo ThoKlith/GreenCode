@@ -29,6 +29,9 @@ npx ecocode@latest analyze --host http://localhost:3000
 
 # limita i file analizzati
 npx ecocode@latest analyze --max-files 50
+
+# esegue e profila dinamicamente un file locale (CPU -> mWh -> CO2)
+npx ecocode@latest profile ./dist/index.js
 ```
 
 #### Sviluppo locale della CLI (per contributor)

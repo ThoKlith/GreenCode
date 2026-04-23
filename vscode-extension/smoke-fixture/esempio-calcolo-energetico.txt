@@ -1,0 +1,60 @@
+EcoCode - Come funziona il calcolo energetico locale
+
+Nota importante:
+EcoCode non misura Watt reali. Usa un punteggio euristico basato su pattern inefficienti trovati con AST in locale.
+
+1) Conteggio problemi per categoria
+- frontend
+- db
+- ai
+
+2) Penalita totale
+Formula:
+penalty = 6 * frontend + 9 * db + 7 * ai
+
+Pesi attuali:
+- DB pesa di piu (9)
+- AI intermedio (7)
+- Frontend pesa meno (6)
+
+3) Efficiency Score
+Formula:
+efficiency = max(20, 100 - penalty)
+
+Il punteggio non scende mai sotto 20.
+
+4) AI Optimization Score
+Formula:
+aiScore = max(20, 100 - 12 * ai)
+
+Qui conta solo la parte AI.
+
+5) Stima CO2 (semplificata)
+Formula:
+co2 = 0.08 + (100 - efficiency) * 0.012
+
+Poi viene arrotondata a 2 decimali.
+
+6) Classe energetica
+- A se efficiency >= 90
+- B se efficiency >= 80
+- C se efficiency >= 70
+- D se efficiency >= 60
+- E se efficiency >= 50
+- F se efficiency >= 40
+- G sotto 40
+
+7) Snippet nel report
+Il report mostra al massimo 40 snippet, ma il punteggio usa i contatori aggregati.
+
+Esempio pratico (file demo)
+Ipotesi:
+- frontend = 2
+- db = 1
+- ai = 2
+
+Calcoli:
+penalty = 2*6 + 1*9 + 2*7 = 35
+efficiency = 100 - 35 = 65  -> Classe D
+aiScore = 100 - 2*12 = 76
+co2 = 0.08 + (100 - 65)*0.012 = 0.50

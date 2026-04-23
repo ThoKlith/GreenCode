@@ -5,6 +5,8 @@ import chalk from 'chalk';
 import ora from 'ora';
 import fs from 'fs';
 import path from 'path';
+import { performance } from 'perf_hooks';
+import { pathToFileURL } from 'url';
 import ts from 'typescript';
 
 // Cartelle da ignorare sempre
@@ -16,6 +18,10 @@ const IGNORED_DIRS = new Set([
 ]);
 
 const AST_EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx']);
+const PROFILE_EXECUTABLE_EXTENSIONS = new Set(['.js', '.mjs', '.cjs']);
+
+const STANDARD_CPU_WATTAGE = 65;
+const GRID_CARBON_INTENSITY_G_PER_KWH = 442;
 
 // File da ignorare per nome
 const IGNORED_FILES = new Set([
@@ -317,10 +323,34 @@ function computeReport(projectName, snippets, counters) {
   };
 }
 
+function formatMs(value) {
+  return `${value.toFixed(2)} ms`;
+}
+
+async function executeFileForProfiling(targetFilePath) {
+  const absolutePath = path.resolve(process.cwd(), targetFilePath);
+  if (!fs.existsSync(absolutePath)) {
+    throw new Error(`File non trovato: ${targetFilePath}`);
+  }
+
+  const fileStat = fs.statSync(absolutePath);
+  if (!fileStat.isFile()) {
+    throw new Error(`Il percorso non punta a un file: ${targetFilePath}`);
+  }
+
+  const extension = path.extname(absolutePath).toLowerCase();
+  if (!PROFILE_EXECUTABLE_EXTENSIONS.has(extension)) {
+    throw new Error(`Estensione non supportata per profile (${extension || 'nessuna'}). Usa file .js, .mjs o .cjs.`);
+  }
+
+  const fileUrl = `${pathToFileURL(absolutePath).href}?ecocodeProfileTs=${Date.now()}`;
+  await import(fileUrl);
+}
+
 program
   .name('ecocode')
   .description("Analisi locale di sostenibilità energetica del codice sorgente")
-  .version('1.1.2');
+  .version('1.2.0');
 
 program
   .command('analyze')
@@ -427,6 +457,56 @@ program
       console.log(chalk.gray(`     Suggerimento: ecocode analyze --host https://green-code-swart.vercel.app`));
       console.log(chalk.gray(`  2. La tabella 'local_reports' esista nel database Supabase`));
       console.log(chalk.gray(`  3. Le variabili server (OPENROUTER_API_KEY/GEMINI_API_KEY) siano configurate in deploy\n`));
+    }
+  });
+
+program
+  .command('profile <file>')
+  .description('Esegue un file locale e misura CPU user/system per stimare energia (mWh) e CO2')
+  .action(async (file) => {
+    console.log(chalk.yellow.bold("\n⚠ Attenzione: il comando profile esegue il codice localmente. Assicurati di profilare solo file sicuri.\n"));
+
+    const spinner = ora(`Profilazione dinamica in corso: ${file}`).start();
+
+    try {
+      const startWallTime = performance.now();
+      const startCpuUsage = process.cpuUsage();
+
+      await executeFileForProfiling(file);
+
+      const elapsedWallMs = performance.now() - startWallTime;
+      const cpuUsageDelta = process.cpuUsage(startCpuUsage);
+      const userCpuMs = cpuUsageDelta.user / 1000;
+      const systemCpuMs = cpuUsageDelta.system / 1000;
+      const totalCpuMs = userCpuMs + systemCpuMs;
+
+      const estimatedEnergyMWh = (totalCpuMs * STANDARD_CPU_WATTAGE) / 3600;
+      const estimatedEnergyJ = estimatedEnergyMWh * 3.6;
+      const estimatedCo2g = (estimatedEnergyMWh / 1_000_000) * GRID_CARBON_INTENSITY_G_PER_KWH;
+
+      spinner.succeed(chalk.green('Profilazione completata.'));
+
+      console.log(chalk.bold('\n┌──────────────────────────────────────────┐'));
+      console.log(chalk.bold('│      ⚙ RISULTATI PROFILAZIONE DINAMICA   │'));
+      console.log(chalk.bold('├──────────────────────────────────────────┤'));
+      console.log(`  File eseguito:         ${chalk.cyan(file)}`);
+      console.log(`  CPU User Time:         ${chalk.white(formatMs(userCpuMs))}`);
+      console.log(`  CPU System Time:       ${chalk.white(formatMs(systemCpuMs))}`);
+      console.log(`  CPU Time Totale:       ${chalk.cyan(formatMs(totalCpuMs))}`);
+      console.log(`  Wall Time:             ${chalk.white(formatMs(elapsedWallMs))}`);
+      console.log(`  Energia Stimata:       ${chalk.green(`${estimatedEnergyMWh.toFixed(4)} mWh`)}`);
+      console.log(`  Lavoro Stimato:        ${chalk.white(`${estimatedEnergyJ.toFixed(4)} J`)}`);
+      console.log(`  CO2 Stimata:           ${chalk.yellow(`${estimatedCo2g.toExponential(3)} gCO2e`)}`);
+      console.log(chalk.bold('└──────────────────────────────────────────┘'));
+
+      console.log(chalk.gray('\nAssunzioni usate:'));
+      console.log(chalk.gray(`- Potenza CPU standard: ${STANDARD_CPU_WATTAGE} W`));
+      console.log(chalk.gray(`- Intensita carbonica media: ${GRID_CARBON_INTENSITY_G_PER_KWH} gCO2e/kWh`));
+      console.log(chalk.gray('- Formula energia: (CPU_Time_ms * Standard_CPU_Wattage) / 3600 => mWh\n'));
+    } catch (error) {
+      spinner.fail(chalk.red('Profilazione fallita.'));
+      console.error(chalk.red(`\n❌ Errore: ${error.message}\n`));
+      process.exitCode = 1;
     }
   });
 

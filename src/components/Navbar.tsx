@@ -14,6 +14,10 @@ export function Navbar() {
             EcoCode
           </span>
         </Link>
+        <nav className="hidden md:flex items-center gap-5 ml-8 text-sm text-muted-foreground">
+          <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
+          <Link href="/methodology" className="hover:text-foreground transition-colors">Methodology</Link>
+        </nav>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <AuthButton />
         </div>
