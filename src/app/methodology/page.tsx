@@ -64,6 +64,15 @@ export default function MethodologyPage() {
               </p>
             </div>
           </div>
+
+          <div className="mt-6 rounded-2xl border border-border/60 bg-background/45 p-4">
+            <h3 className="font-semibold">Comandi di analisi statica</h3>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground list-disc pl-4">
+              <li><code className="px-1 py-0.5 rounded bg-white/10">ecocode analyze</code>: parsing AST locale su JS/TS/React con finding energetici e score A-G.</li>
+              <li><code className="px-1 py-0.5 rounded bg-white/10">ecocode analyze --max-files N</code>: limita il perimetro di analisi.</li>
+              <li><code className="px-1 py-0.5 rounded bg-white/10">ecocode analyze --host URL</code>: invia i metadati del report a un endpoint dashboard specifico.</li>
+            </ul>
+          </div>
         </article>
       </section>
 
@@ -116,21 +125,31 @@ CO2_g = (Energia_mWh / 1_000_000) * Carbon_Intensity_gCO2e_per_kWh`}
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
-              <h3 className="font-semibold text-emerald-300">Guida Rapida Fase 5</h3>
+              <h3 className="font-semibold text-emerald-300">Profilazione File Singolo</h3>
               <ol className="mt-3 list-decimal pl-4 space-y-2 text-sm text-muted-foreground">
-                <li>Build del progetto (se necessario): <code className="px-1 py-0.5 rounded bg-white/10">npm run build</code></li>
-                <li>Profilazione file: <code className="px-1 py-0.5 rounded bg-white/10">npx ecocode@latest profile ./dist/index.js</code></li>
+                <li>Build del progetto se il target e TypeScript: <code className="px-1 py-0.5 rounded bg-white/10">npm run build</code></li>
+                <li>Esegui: <code className="px-1 py-0.5 rounded bg-white/10">npx ecocode@latest profile ./dist/index.js</code></li>
                 <li>Confronta CPU/mWh/gCO2e prima e dopo una modifica.</li>
               </ol>
             </div>
             <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-4">
-              <h3 className="font-semibold text-cyan-300">Guida Rapida Fase 6</h3>
+              <h3 className="font-semibold text-cyan-300">Profilazione Progetto a Scenari</h3>
               <ol className="mt-3 list-decimal pl-4 space-y-2 text-sm text-muted-foreground">
-                <li>Crea config scenari: <code className="px-1 py-0.5 rounded bg-white/10">ecocode.profile.json</code></li>
-                <li>Esegui aggregazione: <code className="px-1 py-0.5 rounded bg-white/10">npx ecocode@latest profile project --config ./ecocode.profile.json --repeat 3</code></li>
-                <li>Usa la media pesata come baseline energetica del repo.</li>
+                <li>Crea il file config: <code className="px-1 py-0.5 rounded bg-white/10">ecocode.profile.json</code></li>
+                <li>Esegui: <code className="px-1 py-0.5 rounded bg-white/10">npx ecocode@latest profile project --config ./ecocode.profile.json --repeat 3</code></li>
+                <li>Usa la media pesata come baseline energetica del repository.</li>
               </ol>
             </div>
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-border/60 bg-background/45 p-4">
+            <h3 className="font-semibold">Copertura funzionale EcoCode</h3>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground list-disc pl-4">
+              <li><strong className="text-foreground">Analisi statica:</strong> rileva anti-pattern energetici e genera Energy Score A-G.</li>
+              <li><strong className="text-foreground">Profilazione file:</strong> misura consumo CPU reale su uno script/entrypoint.</li>
+              <li><strong className="text-foreground">Profilazione progetto:</strong> aggrega piu scenari reali con pesi e run ripetuti.</li>
+              <li><strong className="text-foreground">Dashboard report:</strong> visualizza KPI energetici e priorita di ottimizzazione.</li>
+            </ul>
           </div>
         </article>
       </section>
