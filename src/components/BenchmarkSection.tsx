@@ -68,6 +68,33 @@ export function BenchmarkSection() {
             ))}
           </div>
         </motion.div>
+
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
+          <div className="rounded-2xl border border-border/60 bg-background/40 p-4 md:p-5">
+            <p className="text-xs uppercase tracking-[0.12em] text-emerald-300 font-semibold">Fase 5 - Profilo File Singolo</p>
+            <ol className="mt-3 space-y-2 text-sm text-muted-foreground list-decimal pl-4">
+              <li>Compila il progetto se il target e TypeScript (es. npm run build).</li>
+              <li>Scegli un entrypoint reale (.js/.mjs/.cjs), non una utility isolata.</li>
+              <li>Esegui: <span className="font-mono text-foreground">npx ecocode@latest profile ./dist/index.js</span></li>
+              <li>Leggi CPU Time, mWh e gCO2e per confrontare prima/dopo ottimizzazione.</li>
+            </ol>
+          </div>
+
+          <div className="rounded-2xl border border-border/60 bg-background/40 p-4 md:p-5">
+            <p className="text-xs uppercase tracking-[0.12em] text-cyan-300 font-semibold">Fase 6 - Profilo Progetto a Scenari</p>
+            <ol className="mt-3 space-y-2 text-sm text-muted-foreground list-decimal pl-4">
+              <li>Crea <span className="font-mono text-foreground">ecocode.profile.json</span> con gli scenari reali del repo.</li>
+              <li>Imposta un <span className="font-mono text-foreground">weight</span> per ogni scenario in base al traffico/uso.</li>
+              <li>Esegui: <span className="font-mono text-foreground">npx ecocode@latest profile project --config ./ecocode.profile.json --repeat 3</span></li>
+              <li>Usa la media pesata finale come KPI energetico del progetto.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-amber-100/90">
+          <strong className="text-amber-200">Nota pratica:</strong> il profiler esegue codice reale in locale.
+          Profilare solo file sicuri e ripetere i benchmark (3-5 run) per ridurre rumore statistico.
+        </div>
       </motion.div>
     </section>
   );

@@ -113,6 +113,25 @@ CO2_g = (Energia_mWh / 1_000_000) * Carbon_Intensity_gCO2e_per_kWh`}
               riducendo il rischio di metriche scollegate dalla produzione.
             </p>
           </div>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+              <h3 className="font-semibold text-emerald-300">Guida Rapida Fase 5</h3>
+              <ol className="mt-3 list-decimal pl-4 space-y-2 text-sm text-muted-foreground">
+                <li>Build del progetto (se necessario): <code className="px-1 py-0.5 rounded bg-white/10">npm run build</code></li>
+                <li>Profilazione file: <code className="px-1 py-0.5 rounded bg-white/10">npx ecocode@latest profile ./dist/index.js</code></li>
+                <li>Confronta CPU/mWh/gCO2e prima e dopo una modifica.</li>
+              </ol>
+            </div>
+            <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-4">
+              <h3 className="font-semibold text-cyan-300">Guida Rapida Fase 6</h3>
+              <ol className="mt-3 list-decimal pl-4 space-y-2 text-sm text-muted-foreground">
+                <li>Crea config scenari: <code className="px-1 py-0.5 rounded bg-white/10">ecocode.profile.json</code></li>
+                <li>Esegui aggregazione: <code className="px-1 py-0.5 rounded bg-white/10">npx ecocode@latest profile project --config ./ecocode.profile.json --repeat 3</code></li>
+                <li>Usa la media pesata come baseline energetica del repo.</li>
+              </ol>
+            </div>
+          </div>
         </article>
       </section>
     </main>
