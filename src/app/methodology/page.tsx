@@ -81,6 +81,8 @@ export default function MethodologyPage() {
           <p className="mt-4 text-muted-foreground leading-relaxed">
             Il comando CLI <code className="px-1.5 py-0.5 rounded bg-white/10">ecocode profile &lt;file&gt;</code>
             esegue il file localmente e misura il tempo CPU user/system con moduli nativi Node.js.
+            Per analisi piu rappresentative su repository reali, <code className="px-1.5 py-0.5 rounded bg-white/10">ecocode profile project</code>
+            esegue piu scenari da config, ripete i benchmark e produce una media pesata.
             Da queste misure stimiamo l&apos;energia in mWh con il modello:
           </p>
 
@@ -94,6 +96,23 @@ CO2_g = (Energia_mWh / 1_000_000) * Carbon_Intensity_gCO2e_per_kWh`}
             efficienza computazionale coerenti con i principi promossi dalla Green Software Foundation:
             usare dati osservabili, esplicitare assunzioni e ottimizzare dove il consumo reale e dimostrabile.
           </p>
+
+          <div className="mt-6 rounded-2xl border border-border/60 bg-background/45 p-4">
+            <h3 className="font-semibold">Config scenari dinamici (project)</h3>
+            <pre className="mt-3 rounded-xl border border-border/60 bg-[oklch(0.1_0_0)] p-4 text-xs md:text-sm text-cyan-200 overflow-x-auto">
+{`{
+  "repeat": 3,
+  "scenarios": [
+    { "name": "API startup", "file": "./dist/server.js", "weight": 3 },
+    { "name": "Batch nightly", "file": "./dist/jobs/nightly.js", "weight": 1 }
+  ]
+}`}
+            </pre>
+            <p className="mt-3 text-sm text-muted-foreground">
+              In questo modo EcoCode combina l&apos;analisi statica globale con benchmark dinamici di flussi reali,
+              riducendo il rischio di metriche scollegate dalla produzione.
+            </p>
+          </div>
         </article>
       </section>
     </main>

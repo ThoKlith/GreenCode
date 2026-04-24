@@ -32,6 +32,35 @@ npx ecocode@latest analyze --max-files 50
 
 # esegue e profila dinamicamente un file locale (CPU -> mWh -> CO2)
 npx ecocode@latest profile ./dist/index.js
+
+# profila l'intero progetto tramite scenari configurati
+npx ecocode@latest profile project --config ./ecocode.profile.json --repeat 5
+```
+
+Profilazione dinamica progetto (multi-scenario):
+
+1. Crea `ecocode.profile.json` nella root (puoi partire da `ecocode.profile.example.json`).
+2. Definisci gli scenari reali da eseguire (entrypoint JS/MJS/CJS) e un peso opzionale.
+3. Lancia `npx ecocode@latest profile project` per ottenere media pesata CPU/mWh/gCO2e.
+
+Esempio config:
+
+```json
+{
+	"repeat": 3,
+	"scenarios": [
+		{
+			"name": "API startup",
+			"file": "./dist/server.js",
+			"weight": 3
+		},
+		{
+			"name": "Batch giornaliero",
+			"file": "./dist/jobs/daily.js",
+			"weight": 1
+		}
+	]
+}
 ```
 
 #### Sviluppo locale della CLI (per contributor)

@@ -4,16 +4,15 @@ import { motion } from "framer-motion";
 import { Gauge, TerminalSquare } from "lucide-react";
 
 const benchmarkLines = [
-  { text: "$ ecocode profile ./dist/index.js", tone: "text-emerald-400" },
+  { text: "$ ecocode profile project --config ./ecocode.profile.json", tone: "text-emerald-400" },
   { text: "", tone: "" },
   { text: "Attenzione: il comando profile esegue il codice localmente.", tone: "text-yellow-300" },
-  { text: "Profilazione dinamica in corso: ./dist/index.js", tone: "text-white/70" },
+  { text: "Profilazione dinamica progetto in corso...", tone: "text-white/70" },
   { text: "", tone: "" },
-  { text: "CPU User Time:    84.50 ms", tone: "text-white/85" },
-  { text: "CPU System Time:  16.20 ms", tone: "text-white/85" },
-  { text: "CPU Time Totale:  100.70 ms", tone: "text-cyan-300" },
-  { text: "Energia Stimata:  1.8182 mWh", tone: "text-emerald-300 font-semibold" },
-  { text: "CO2 Stimata:      8.04e-4 gCO2e", tone: "text-yellow-200" },
+  { text: "Scenari: 3  |  Run per scenario: 5", tone: "text-white/85" },
+  { text: "CPU medio pesato:      148.20 ms", tone: "text-cyan-300" },
+  { text: "Energia media pesata:  2.6764 mWh", tone: "text-emerald-300 font-semibold" },
+  { text: "CO2 media pesata:      1.18e-3 gCO2e", tone: "text-yellow-200" },
 ];
 
 export function BenchmarkSection() {
@@ -39,7 +38,7 @@ export function BenchmarkSection() {
           <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
             Mentre il linter ti guida nella scrittura, il nostro profiler CLI mette il tuo codice alla prova.
             Esegui benchmark reali per scoprire l&apos;impatto fisico del tuo software in milliwattora.
-            Dati certi per ottimizzazioni estreme.
+            Dati certi per ottimizzazioni estreme, su singoli file o interi flussi progetto.
           </p>
         </div>
 

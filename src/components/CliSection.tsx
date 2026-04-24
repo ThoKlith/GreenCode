@@ -5,32 +5,32 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 
 const terminalLines = [
-  { text: "$ npx ecocode@latest analyze", color: "text-emerald-400", delay: 0 },
+  { text: "$ npx ecocode@latest profile project --config ./ecocode.profile.json", color: "text-emerald-400", delay: 0 },
   { text: "", color: "", delay: 0.3 },
-  { text: "🌱 EcoCode CLI - Analisi Reale del Codice Sorgente", color: "text-emerald-300 font-bold", delay: 0.5 },
+  { text: "⚠ Attenzione: il comando profile esegue il codice localmente.", color: "text-yellow-300", delay: 0.5 },
   { text: "", color: "", delay: 0.7 },
-  { text: "✓ Trovati 47 file sorgenti nel progetto: my-app", color: "text-green-400", delay: 1.0 },
-  { text: "✓ Analisi architetturale completata.", color: "text-green-400", delay: 1.5 },
-  { text: "✓ Pattern energetici calcolati.", color: "text-green-400", delay: 2.0 },
+  { text: "✓ Scenario API startup (3/3)", color: "text-green-400", delay: 1.0 },
+  { text: "✓ Scenario job notturno (3/3)", color: "text-green-400", delay: 1.5 },
+  { text: "✓ Profilazione progetto completata.", color: "text-green-400", delay: 2.0 },
   { text: "", color: "", delay: 2.3 },
   { text: "┌──────────────────────────────────────────┐", color: "text-white/60", delay: 2.5 },
-  { text: "│        📊 RISULTATI ANALISI REALE        │", color: "text-white font-bold", delay: 2.6 },
+  { text: "│     ⚙ RISULTATI PROFILAZIONE DINAMICA    │", color: "text-white font-bold", delay: 2.6 },
   { text: "├──────────────────────────────────────────┤", color: "text-white/60", delay: 2.7 },
-  { text: "  Classe Energetica:     B", color: "text-emerald-400", delay: 2.9 },
-  { text: "  CO2 Stimata:           0.32 kg/anno", color: "text-white/80", delay: 3.1 },
-  { text: "  Efficienza Codice:     82/100", color: "text-cyan-400", delay: 3.3 },
-  { text: "  Vulnerabilità trovate: 3", color: "text-yellow-400", delay: 3.5 },
+  { text: "  CPU Medio Pesato:      148.2 ms", color: "text-cyan-400", delay: 2.9 },
+  { text: "  Energia Media Pesata:  2.6764 mWh", color: "text-emerald-300", delay: 3.1 },
+  { text: "  CO2 Media Pesata:      1.18e-3 gCO2e", color: "text-yellow-300", delay: 3.3 },
+  { text: "  Scenari:               2", color: "text-white/80", delay: 3.5 },
   { text: "└──────────────────────────────────────────┘", color: "text-white/60", delay: 3.7 },
   { text: "", color: "", delay: 3.9 },
-  { text: "🌍 Report completo:", color: "text-white font-bold", delay: 4.1 },
-  { text: "   https://ecocode.app/report/a1b2c3d4", color: "text-blue-400 underline", delay: 4.3 },
+  { text: "Suggerimento: usa --repeat 5 per dati stabili", color: "text-white/70", delay: 4.1 },
+  { text: "Poi confronta baseline vs versione ottimizzata", color: "text-white/70", delay: 4.3 },
 ];
 
 export function CliSection() {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText("npx ecocode@latest analyze");
+    navigator.clipboard.writeText("npx ecocode@latest profile project --config ./ecocode.profile.json");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -122,13 +122,13 @@ export function CliSection() {
               <h3 className="font-semibold text-lg">Installa ed esegui</h3>
             </div>
             <p className="text-muted-foreground text-sm mb-4">
-              Un solo comando. Richiede Node.js 18+ e connessione Internet.
+              Modalita file singolo o multi-scenario progetto. Richiede Node.js 18+.
             </p>
             <button
               onClick={handleCopy}
               className="w-full flex items-center justify-between bg-[oklch(0.10_0_0)] border border-white/10 rounded-lg px-4 py-3 font-mono text-sm text-emerald-400 hover:border-primary/40 transition-all duration-200 cursor-pointer group"
             >
-              <span>$ npx ecocode@latest analyze</span>
+              <span>$ npx ecocode@latest profile project --config ./ecocode.profile.json</span>
               {copied ? (
                 <Check className="w-4 h-4 text-emerald-400" />
               ) : (
@@ -146,8 +146,8 @@ export function CliSection() {
               <h3 className="font-semibold text-lg">Analisi in locale</h3>
             </div>
             <p className="text-muted-foreground text-sm">
-              La CLI scansiona JS/TS/React in locale, calcola score energetici e trova inefficienze con regole statiche AST.
-              <strong className="text-foreground"> Alla dashboard vengono inviati solo risultati e metadati tecnici (file/linea/categoria).</strong>
+              La CLI esegue codice in locale e misura CPU user/system per stimare mWh, Joule e gCO2e.
+              <strong className="text-foreground"> Con profile project aggreghi scenari reali del repo con media pesata.</strong>
             </p>
           </div>
 
@@ -160,8 +160,8 @@ export function CliSection() {
               <h3 className="font-semibold text-lg">Report visivo premium</h3>
             </div>
             <p className="text-muted-foreground text-sm">
-              Ricevi un link univoco alla tua dashboard personale con classe energetica, 
-              vulnerabilità ecologiche e suggerimenti di refactoring AI — la stessa esperienza della Web App.
+              Definisci scenari nel file ecocode.profile.json, esegui benchmark ripetuti e ottieni un numero comparabile
+              baseline vs ottimizzazione senza caricare sorgente su server.
             </p>
           </div>
 

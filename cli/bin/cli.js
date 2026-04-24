@@ -19,6 +19,7 @@ const IGNORED_DIRS = new Set([
 
 const AST_EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx']);
 const PROFILE_EXECUTABLE_EXTENSIONS = new Set(['.js', '.mjs', '.cjs']);
+const DEFAULT_PROJECT_PROFILE_CONFIG = 'ecocode.profile.json';
 
 const STANDARD_CPU_WATTAGE = 65;
 const GRID_CARBON_INTENSITY_G_PER_KWH = 442;
@@ -327,6 +328,123 @@ function formatMs(value) {
   return `${value.toFixed(2)} ms`;
 }
 
+function computeEnergyFromCpuMs(totalCpuMs) {
+  const estimatedEnergyMWh = (totalCpuMs * STANDARD_CPU_WATTAGE) / 3600;
+  const estimatedEnergyJ = estimatedEnergyMWh * 3.6;
+  const estimatedCo2g = (estimatedEnergyMWh / 1_000_000) * GRID_CARBON_INTENSITY_G_PER_KWH;
+
+  return {
+    estimatedEnergyMWh,
+    estimatedEnergyJ,
+    estimatedCo2g
+  };
+}
+
+function parsePositiveInteger(raw, fallback) {
+  const parsed = parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
+  return parsed;
+}
+
+function loadProjectProfileConfig(configPath) {
+  const resolvedPath = path.resolve(process.cwd(), configPath || DEFAULT_PROJECT_PROFILE_CONFIG);
+  if (!fs.existsSync(resolvedPath)) {
+    throw new Error(`Config non trovata: ${resolvedPath}. Crea un file ${DEFAULT_PROJECT_PROFILE_CONFIG} nella root del progetto.`);
+  }
+
+  let parsed;
+  try {
+    const raw = fs.readFileSync(resolvedPath, 'utf-8');
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error(`Impossibile leggere/parsing della config: ${resolvedPath}`);
+  }
+
+  if (!parsed || !Array.isArray(parsed.scenarios) || parsed.scenarios.length === 0) {
+    throw new Error('La config deve contenere un array scenarios non vuoto.');
+  }
+
+  const scenarios = parsed.scenarios.map((scenario, index) => {
+    if (!scenario || typeof scenario.file !== 'string' || !scenario.file.trim()) {
+      throw new Error(`Scenario #${index + 1} non valido: campo file mancante.`);
+    }
+
+    const weight = Number.isFinite(Number(scenario.weight)) && Number(scenario.weight) > 0
+      ? Number(scenario.weight)
+      : 1;
+
+    return {
+      name: typeof scenario.name === 'string' && scenario.name.trim()
+        ? scenario.name.trim()
+        : scenario.file,
+      file: scenario.file,
+      weight
+    };
+  });
+
+  const repeat = parsePositiveInteger(String(parsed.repeat || ''), 3);
+
+  return {
+    configPath: resolvedPath,
+    repeat,
+    scenarios
+  };
+}
+
+async function measureFileProfile(file) {
+  const startWallTime = performance.now();
+  const startCpuUsage = process.cpuUsage();
+
+  await executeFileForProfiling(file);
+
+  const elapsedWallMs = performance.now() - startWallTime;
+  const cpuUsageDelta = process.cpuUsage(startCpuUsage);
+  const userCpuMs = cpuUsageDelta.user / 1000;
+  const systemCpuMs = cpuUsageDelta.system / 1000;
+  const totalCpuMs = userCpuMs + systemCpuMs;
+  const energy = computeEnergyFromCpuMs(totalCpuMs);
+
+  return {
+    elapsedWallMs,
+    userCpuMs,
+    systemCpuMs,
+    totalCpuMs,
+    ...energy
+  };
+}
+
+function averageFromRuns(runs) {
+  const count = runs.length || 1;
+  const sum = runs.reduce((acc, run) => {
+    acc.userCpuMs += run.userCpuMs;
+    acc.systemCpuMs += run.systemCpuMs;
+    acc.totalCpuMs += run.totalCpuMs;
+    acc.elapsedWallMs += run.elapsedWallMs;
+    acc.estimatedEnergyMWh += run.estimatedEnergyMWh;
+    acc.estimatedEnergyJ += run.estimatedEnergyJ;
+    acc.estimatedCo2g += run.estimatedCo2g;
+    return acc;
+  }, {
+    userCpuMs: 0,
+    systemCpuMs: 0,
+    totalCpuMs: 0,
+    elapsedWallMs: 0,
+    estimatedEnergyMWh: 0,
+    estimatedEnergyJ: 0,
+    estimatedCo2g: 0
+  });
+
+  return {
+    userCpuMs: sum.userCpuMs / count,
+    systemCpuMs: sum.systemCpuMs / count,
+    totalCpuMs: sum.totalCpuMs / count,
+    elapsedWallMs: sum.elapsedWallMs / count,
+    estimatedEnergyMWh: sum.estimatedEnergyMWh / count,
+    estimatedEnergyJ: sum.estimatedEnergyJ / count,
+    estimatedCo2g: sum.estimatedCo2g / count
+  };
+}
+
 async function executeFileForProfiling(targetFilePath) {
   const absolutePath = path.resolve(process.cwd(), targetFilePath);
   if (!fs.existsSync(absolutePath)) {
@@ -350,7 +468,7 @@ async function executeFileForProfiling(targetFilePath) {
 program
   .name('ecocode')
   .description("Analisi locale di sostenibilità energetica del codice sorgente")
-  .version('1.2.0');
+  .version('1.3.0');
 
 program
   .command('analyze')
@@ -463,48 +581,94 @@ program
 program
   .command('profile <file>')
   .description('Esegue un file locale e misura CPU user/system per stimare energia (mWh) e CO2')
-  .action(async (file) => {
+  .option('-c, --config <path>', 'File config per profile project', DEFAULT_PROJECT_PROFILE_CONFIG)
+  .option('-r, --repeat <n>', 'Numero di run per scenario in profile project', '3')
+  .action(async (file, options) => {
     console.log(chalk.yellow.bold("\n⚠ Attenzione: il comando profile esegue il codice localmente. Assicurati di profilare solo file sicuri.\n"));
 
-    const spinner = ora(`Profilazione dinamica in corso: ${file}`).start();
-
     try {
-      const startWallTime = performance.now();
-      const startCpuUsage = process.cpuUsage();
+      if (file === 'project') {
+        const configData = loadProjectProfileConfig(options.config || DEFAULT_PROJECT_PROFILE_CONFIG);
+        const cliRepeat = parsePositiveInteger(options.repeat, configData.repeat);
+        const spinner = ora('Profilazione dinamica progetto in corso...').start();
 
-      await executeFileForProfiling(file);
+        const scenarioSummaries = [];
 
-      const elapsedWallMs = performance.now() - startWallTime;
-      const cpuUsageDelta = process.cpuUsage(startCpuUsage);
-      const userCpuMs = cpuUsageDelta.user / 1000;
-      const systemCpuMs = cpuUsageDelta.system / 1000;
-      const totalCpuMs = userCpuMs + systemCpuMs;
+        for (const scenario of configData.scenarios) {
+          const runs = [];
+          for (let i = 0; i < cliRepeat; i += 1) {
+            spinner.text = `Scenario ${scenario.name} (${i + 1}/${cliRepeat})`;
+            const runMetrics = await measureFileProfile(scenario.file);
+            runs.push(runMetrics);
+          }
 
-      const estimatedEnergyMWh = (totalCpuMs * STANDARD_CPU_WATTAGE) / 3600;
-      const estimatedEnergyJ = estimatedEnergyMWh * 3.6;
-      const estimatedCo2g = (estimatedEnergyMWh / 1_000_000) * GRID_CARBON_INTENSITY_G_PER_KWH;
+          scenarioSummaries.push({
+            ...scenario,
+            avg: averageFromRuns(runs),
+            runs: cliRepeat
+          });
+        }
 
-      spinner.succeed(chalk.green('Profilazione completata.'));
+        const totalWeight = scenarioSummaries.reduce((acc, s) => acc + s.weight, 0) || 1;
+        const weighted = scenarioSummaries.reduce((acc, s) => {
+          const factor = s.weight / totalWeight;
+          acc.totalCpuMs += s.avg.totalCpuMs * factor;
+          acc.estimatedEnergyMWh += s.avg.estimatedEnergyMWh * factor;
+          acc.estimatedEnergyJ += s.avg.estimatedEnergyJ * factor;
+          acc.estimatedCo2g += s.avg.estimatedCo2g * factor;
+          return acc;
+        }, { totalCpuMs: 0, estimatedEnergyMWh: 0, estimatedEnergyJ: 0, estimatedCo2g: 0 });
 
-      console.log(chalk.bold('\n┌──────────────────────────────────────────┐'));
-      console.log(chalk.bold('│      ⚙ RISULTATI PROFILAZIONE DINAMICA   │'));
-      console.log(chalk.bold('├──────────────────────────────────────────┤'));
-      console.log(`  File eseguito:         ${chalk.cyan(file)}`);
-      console.log(`  CPU User Time:         ${chalk.white(formatMs(userCpuMs))}`);
-      console.log(`  CPU System Time:       ${chalk.white(formatMs(systemCpuMs))}`);
-      console.log(`  CPU Time Totale:       ${chalk.cyan(formatMs(totalCpuMs))}`);
-      console.log(`  Wall Time:             ${chalk.white(formatMs(elapsedWallMs))}`);
-      console.log(`  Energia Stimata:       ${chalk.green(`${estimatedEnergyMWh.toFixed(4)} mWh`)}`);
-      console.log(`  Lavoro Stimato:        ${chalk.white(`${estimatedEnergyJ.toFixed(4)} J`)}`);
-      console.log(`  CO2 Stimata:           ${chalk.yellow(`${estimatedCo2g.toExponential(3)} gCO2e`)}`);
-      console.log(chalk.bold('└──────────────────────────────────────────┘'));
+        spinner.succeed(chalk.green('Profilazione progetto completata.'));
+
+        console.log(chalk.bold('\n┌────────────────────────────────────────────────────────────┐'));
+        console.log(chalk.bold('│            ⚙ PROFILAZIONE DINAMICA PROGETTO               │'));
+        console.log(chalk.bold('├────────────────────────────────────────────────────────────┤'));
+        console.log(`  Config:                 ${chalk.cyan(configData.configPath)}`);
+        console.log(`  Scenari:                ${chalk.white(String(scenarioSummaries.length))}`);
+        console.log(`  Run per scenario:       ${chalk.white(String(cliRepeat))}`);
+        console.log(chalk.bold('├────────────────────────────────────────────────────────────┤'));
+
+        for (const scenario of scenarioSummaries) {
+          console.log(`  ${chalk.bold(scenario.name)} ${chalk.gray(`(weight ${scenario.weight})`)}`);
+          console.log(`    File:                 ${chalk.cyan(scenario.file)}`);
+          console.log(`    CPU medio:            ${chalk.white(formatMs(scenario.avg.totalCpuMs))}`);
+          console.log(`    Energia media:        ${chalk.green(`${scenario.avg.estimatedEnergyMWh.toFixed(4)} mWh`)}`);
+          console.log(`    CO2 media:            ${chalk.yellow(`${scenario.avg.estimatedCo2g.toExponential(3)} gCO2e`)}`);
+        }
+
+        console.log(chalk.bold('├────────────────────────────────────────────────────────────┤'));
+        console.log(`  CPU medio pesato:       ${chalk.cyan(formatMs(weighted.totalCpuMs))}`);
+        console.log(`  Energia media pesata:   ${chalk.green(`${weighted.estimatedEnergyMWh.toFixed(4)} mWh`)}`);
+        console.log(`  Lavoro medio pesato:    ${chalk.white(`${weighted.estimatedEnergyJ.toFixed(4)} J`)}`);
+        console.log(`  CO2 media pesata:       ${chalk.yellow(`${weighted.estimatedCo2g.toExponential(3)} gCO2e`)}`);
+        console.log(chalk.bold('└────────────────────────────────────────────────────────────┘'));
+      } else {
+        const spinner = ora(`Profilazione dinamica in corso: ${file}`).start();
+        const metrics = await measureFileProfile(file);
+
+        spinner.succeed(chalk.green('Profilazione completata.'));
+
+        console.log(chalk.bold('\n┌──────────────────────────────────────────┐'));
+        console.log(chalk.bold('│      ⚙ RISULTATI PROFILAZIONE DINAMICA   │'));
+        console.log(chalk.bold('├──────────────────────────────────────────┤'));
+        console.log(`  File eseguito:         ${chalk.cyan(file)}`);
+        console.log(`  CPU User Time:         ${chalk.white(formatMs(metrics.userCpuMs))}`);
+        console.log(`  CPU System Time:       ${chalk.white(formatMs(metrics.systemCpuMs))}`);
+        console.log(`  CPU Time Totale:       ${chalk.cyan(formatMs(metrics.totalCpuMs))}`);
+        console.log(`  Wall Time:             ${chalk.white(formatMs(metrics.elapsedWallMs))}`);
+        console.log(`  Energia Stimata:       ${chalk.green(`${metrics.estimatedEnergyMWh.toFixed(4)} mWh`)}`);
+        console.log(`  Lavoro Stimato:        ${chalk.white(`${metrics.estimatedEnergyJ.toFixed(4)} J`)}`);
+        console.log(`  CO2 Stimata:           ${chalk.yellow(`${metrics.estimatedCo2g.toExponential(3)} gCO2e`)}`);
+        console.log(chalk.bold('└──────────────────────────────────────────┘'));
+      }
 
       console.log(chalk.gray('\nAssunzioni usate:'));
       console.log(chalk.gray(`- Potenza CPU standard: ${STANDARD_CPU_WATTAGE} W`));
       console.log(chalk.gray(`- Intensita carbonica media: ${GRID_CARBON_INTENSITY_G_PER_KWH} gCO2e/kWh`));
       console.log(chalk.gray('- Formula energia: (CPU_Time_ms * Standard_CPU_Wattage) / 3600 => mWh\n'));
     } catch (error) {
-      spinner.fail(chalk.red('Profilazione fallita.'));
+      console.log(chalk.red('Profilazione fallita.'));
       console.error(chalk.red(`\n❌ Errore: ${error.message}\n`));
       process.exitCode = 1;
     }
