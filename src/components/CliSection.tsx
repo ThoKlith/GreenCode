@@ -23,7 +23,7 @@ const terminalLines = [
   { text: "└──────────────────────────────────────────┘", color: "text-white/60", delay: 3.7 },
   { text: "", color: "", delay: 3.9 },
   { text: "Tip: use --repeat 5 for stable data", color: "text-white/70", delay: 4.1 },
-  { text: "Poi confronta baseline vs versione ottimizzata", color: "text-white/70", delay: 4.3 },
+  { text: "Then compare baseline vs optimized version", color: "text-white/70", delay: 4.3 },
 ];
 
 export function CliSection() {
@@ -121,7 +121,7 @@ export function CliSection() {
               <h3 className="font-semibold text-lg">Install and run</h3>
             </div>
             <p className="text-muted-foreground text-sm mb-4">
-              Modalita file singolo o multi-scenario progetto. Richiede Node.js 18+.
+              Single-file or multi-scenario project mode. Requires Node.js 18+.
             </p>
             <button
               onClick={handleCopy}

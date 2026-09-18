@@ -108,8 +108,7 @@ CO2_g = (Energia_mWh / 1_000_000) * Carbon_Intensity_gCO2e_per_kWh`}
 }`}
             </pre>
             <p className="mt-3 text-sm text-muted-foreground">
-              In questo modo GreenCode combina l&apos;analisi statica globale con benchmark dinamici di flussi reali,
-              riducendo il rischio di metriche scollegate dalla produzione.
+              This way GreenCode combines global static analysis with dynamic benchmarks of real flows, reducing the risk of metrics disconnected from production.
             </p>
           </div>
 
