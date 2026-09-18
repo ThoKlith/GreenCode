@@ -108,7 +108,7 @@ Il workflow `.github/workflows/publish-cli.yml` pubblichera automaticamente su n
 
 #### Eco-Fix (Web + locale)
 - Nella Web App pubblica non viene richiesto agli utenti di inserire API key personali.
-- Il pulsante Eco-Fix usa la chiave server-side configurata su deploy (es. `OPENROUTER_API_KEY`).
+- Il pulsante Eco-Fix usa il motore AI server-side (NVIDIA NIM), configurato con `NVIDIA_API_KEY`.
 - Se self-hosti in locale, imposta la stessa variabile in `.env.local` e avvia l'app.
 - Per privacy, il report locale salva solo metadati: quando apri Eco-Fix incolli manualmente il blocco di codice da ottimizzare.
 
@@ -128,7 +128,7 @@ Marketplace: https://marketplace.visualstudio.com/items?itemName=klith.ecocode-e
 
 ## Sviluppo Interno
 
-1. Assicurati di impostare la variabile di ambiente in `.env.local` con i tuoi accessi `NEXT_PUBLIC_SUPABASE_URL` e chiavi Gemini se lavori alla parte Web.
+1. Assicurati di impostare le variabili di ambiente in `.env.local`: `NEXT_PUBLIC_SUPABASE_URL` + chiave Supabase, e `NVIDIA_API_KEY` (motore AI NVIDIA NIM) se lavori alla parte Web.
 2. Esegui il dump `schema.sql` all'interno del progetto editor Supabase. In questo modo attivi la memorizzazione dei report `local_reports` e le RLS aperte per il CLI.
 
 © 2026 EcoCode. Made with 💚.

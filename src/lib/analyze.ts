@@ -7,6 +7,7 @@ type RepoInfo = {
 type TreeNode = {
   type: string;
   path: string;
+  size?: number;
 };
 
 type TreeResponse = {
@@ -36,21 +37,35 @@ async function fetchGithubFiles(repoOwner: string, repoName: string, token?: str
   if (!treeRes.ok) throw new Error("Impossibile leggere l'albero dei file dal repository.");
   const treeData = (await treeRes.json()) as TreeResponse;
 
-  // 3. Filtra file sorgente interessanti per web e scripting
-  const allowedExtensions = ['.js', '.jsx', '.ts', '.tsx', '.py', '.java', '.go', '.rs', '.css', '.html', '.php'];
+  // 3. Filtra file sorgente con LOGICA (dove vivono gli sprechi energetici).
+  // Rimossi .css/.html: contano poco per l'energia computazionale.
+  const allowedExtensions = ['.js', '.jsx', '.ts', '.tsx', '.py', '.java', '.go', '.rs', '.php'];
   let files = treeData.tree.filter((file) => {
     if (file.type !== 'blob') return false;
     const p = file.path.toLowerCase();
-    // Escludiamo cartelle build/vendor standard
-    if (p.includes('node_modules/') || p.includes('dist/') || p.includes('build/') || p.includes('.next/') || p.includes('vendor/')) {
-      return false;
-    }
+    // Escludi build/vendor
+    if (/(^|\/)(node_modules|dist|build|\.next|out|vendor|coverage)\//.test(p)) return false;
+    // Escludi rumore: type-defs, test, config, generati/minificati, lockfile
+    if (/\.d\.ts$|\.(test|spec)\.|\.config\.|\.min\.|-lock\.|\.stories\./.test(p)) return false;
+    const base = p.split('/').pop() || '';
+    if (['next.config.ts', 'next.config.js', 'tailwind.config.ts', 'postcss.config.mjs', 'eslint.config.mjs', 'next-env.d.ts'].includes(base)) return false;
     const ext = p.slice((Math.max(0, p.lastIndexOf(".")) || Infinity));
     return allowedExtensions.includes(ext);
   });
 
-  // Limite ~8 file principali per limitare lo spreco di token AI ed evitare l'errore 429 (Quota Limit)
-  files = files.slice(0, 8);
+  // Punteggio di RILEVANZA: preferisci i file dove è più probabile ci sia logica pesante
+  // (cartelle sorgente + dimensione media/grande), penalizza indici e barrel file banali.
+  const relevance = (f: TreeNode) => {
+    const p = f.path.toLowerCase();
+    let s = Math.min(f.size || 0, 30000) / 1000; // dimensione (kB, cappata)
+    if (/(^|\/)(src|lib|app|components|pages|api|routes|utils|services|hooks|core|engine)\//.test(p)) s += 20;
+    if (/index\.(ts|js|tsx|jsx)$|constants?\.|types?\./.test(p)) s -= 8; // indici/costanti = poca logica
+    return s;
+  };
+  files.sort((a, b) => relevance(b) - relevance(a));
+
+  // Prendiamo i ~6 file PIÙ rilevanti (non i primi a caso dell'albero).
+  files = files.slice(0, 6);
 
   let combinedCode = "";
 
@@ -66,8 +81,8 @@ async function fetchGithubFiles(repoOwner: string, repoName: string, token?: str
         if (rawRes.ok) {
           let text = await rawRes.text();
           // Tagliamo i file grandi: prendiamo massimo le prime 500 righe (~15000 char) per file
-          if (text.length > 20000) {
-             text = text.slice(0, 20000) + "\n...[TRUNCATED]";
+          if (text.length > 12000) {
+             text = text.slice(0, 12000) + "\n...[TRUNCATED]";
           }
           return `\n--- FILE: ${file.path} ---\n${text}\n\n`;
         }
@@ -84,8 +99,8 @@ async function fetchGithubFiles(repoOwner: string, repoName: string, token?: str
   // Selezioniamo in via definitiva massimo ~60.000 caratteri complessivi da inviare al modello.
   // 60k caratteri sono circa 15k token, molto al di sotto del limite di 1M token/minuto gratuito,
   // garantendo l'immunità da blocchi 429 per l'invio troppo massivo.
-  if (combinedCode.length > 80000) {
-    combinedCode = combinedCode.slice(0, 80000) + "\n...[TRUNCATED BUNDLE]";
+  if (combinedCode.length > 45000) {
+    combinedCode = combinedCode.slice(0, 45000) + "\n...[TRUNCATED BUNDLE]";
   }
 
   return combinedCode;
@@ -115,9 +130,9 @@ export async function analyzeRepository(url: string) {
   const repoNameInfo = parts[1].replace(/\.git$/, '');
   const repo_name = `${repoOwner}/${repoNameInfo}`;
 
-  const apiKey = process.env.OPENROUTER_API_KEY || process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error("Chiave API OpenRouter non configurata.");
+  const nvidiaKey = process.env.NVIDIA_API_KEY;
+  if (!nvidiaKey) {
+    throw new Error("Chiave API NVIDIA non configurata (NVIDIA_API_KEY).");
   }
 
   // Preleva il vero codice sorgente limitato
@@ -140,59 +155,87 @@ ${sourceCodeBundle}
 Basati ESCLUSIVAMENTE sui difetti che trovi in questo preciso sorgente fornito in alto. 
 NON INVENTARE FILES e preleva gli snippet da righe vere del codice.
 
-Devi restituire SOLO un oggetto JSON valido con la seguente struttura esatta (NO markdown, NO testo fuori dal JSON):
+IMPORTANTE: i valori qui sotto sono SOLO placeholder di formato. Calcola i valori REALI analizzando il codice fornito — NON copiare i placeholder. Un codice con loop annidati O(n^2), concatenazioni di stringhe in loop, o lavoro ridondante ripetuto è inefficiente (classe E-G, efficiency_score basso). Un codice pulito e ottimizzato è classe A-B con score alto.
+
+Restituisci SOLO un oggetto JSON valido con questa struttura (sostituisci OGNI placeholder con il valore reale calcolato):
 {
-  "energy_class": "A",
-  "co2_estimate": 0.15,
-  "efficiency_score": 85,
-  "ai_optimization_score": 90,
+  "energy_class": "<lettera A-G basata sulla reale efficienza del codice>",
+  "co2_estimate": <numero: stima gCO2e reale>,
+  "efficiency_score": <intero 0-100 reale>,
+  "ai_optimization_score": <intero 0-100 reale>,
   "snippets": [
     {
       "id": "vuln-1",
-      "filename": "nome ESATTO del vero file",
-      "description": "Una breve descrizione",
-      "code": "le esatte righe incriminate"
+      "filename": "<nome ESATTO del vero file dove sta il problema>",
+      "description": "<il problema energetico reale trovato in quel codice>",
+      "code": "<le esatte righe incriminate, copiate dal sorgente>"
     }
   ]
 }`;
 
   try {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://ecocode.app", 
-        "X-Title": "EcoCode",
-      },
-      body: JSON.stringify({
-        "models": [
-          "meta-llama/llama-3.3-70b-instruct:free",
-          "openrouter/free"
-        ],
-        "messages": [
-          { "role": "user", "content": prompt }
-        ],
-        "response_format": { "type": "json_object" },
-        "temperature": 0.2
-      })
-    });
+    // Motore AI: NVIDIA NIM con fallback automatico tra modelli.
+    // Primario: gemma-4-31b-it (modello instruct che restituisce JSON DIRETTO senza
+    // ragionamento in prosa — i modelli reasoning Nemotron sprecano token "pensando"
+    // e su repo grandi non arrivano mai a produrre il JSON, causando errori di parsing).
+    // I reasoning restano come fallback: funzionano su input piccoli.
+    const NVIDIA_MODELS = [
+      "google/gemma-4-31b-it",
+      "nvidia/nemotron-3-super-120b-a12b",
+      "nvidia/nemotron-3-ultra-550b-a55b",
+    ];
+    // Estrazione JSON robusta: i modelli reasoning avvolgono il JSON in testo/ragionamento.
+    // Cerca il blocco { } bilanciato piu grande che parsa correttamente.
+    const extractJson = (text: string): any => {
+      const t = text
+        .replace(/<think>[\s\S]*?<\/think>/g, "")
+        .replace(/```json/gi, "")
+        .replace(/```/g, "");
+      const candidates: string[] = [];
+      let depth = 0, start = -1;
+      for (let i = 0; i < t.length; i++) {
+        const c = t[i];
+        if (c === "{") { if (depth === 0) start = i; depth++; }
+        else if (c === "}") { depth--; if (depth === 0 && start >= 0) { candidates.push(t.slice(start, i + 1)); start = -1; } }
+      }
+      candidates.sort((a, b) => b.length - a.length);
+      for (const c of candidates) { try { return JSON.parse(c); } catch { /* prova il prossimo candidato */ } }
+      return null;
+    };
 
-    if (!res.ok) {
-        throw new Error(`OpenRouter Error: ${res.statusText}`);
+    // Ciclo con fallback: la validazione JSON e DENTRO il ciclo, cosi un modello
+    // che restituisce JSON sporco fa passare al modello successivo invece di fallire.
+    let analysisInfo: any = null;
+    let lastErr = "";
+    for (const model of NVIDIA_MODELS) {
+      try {
+        const res = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${nvidiaKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model,
+            messages: [{ role: "user", content: prompt }],
+            response_format: { type: "json_object" },
+            temperature: 0.2,
+            max_tokens: 4000,
+          }),
+        });
+        if (!res.ok) { lastErr = `NVIDIA HTTP ${res.status} (${model})`; continue; }
+        const result = await res.json();
+        const text = result?.choices?.[0]?.message?.content;
+        if (!text) { lastErr = `Risposta vuota (${model})`; continue; }
+        const parsed = extractJson(text);
+        if (parsed && parsed.energy_class) { analysisInfo = parsed; break; }
+        lastErr = `JSON non valido o incompleto (${model})`;
+      } catch (e) {
+        lastErr = (e instanceof Error ? e.message : String(e)) + ` (${model})`;
+      }
     }
-
-    const result = await res.json();
-    const responseText = result.choices[0].message.content;
-    const cleanedText = responseText.replace(/```json\n?|\n?```/g, "").trim();
-    
-    let analysisInfo;
-    try {
-      analysisInfo = JSON.parse(cleanedText);
-    } catch (parseError: unknown) {
-      const parseMessage = parseError instanceof Error ? parseError.message : String(parseError);
-      console.error("JSON Parse Error. Raw string was:", responseText);
-      throw new Error(`Il formato della risposta AI non era valido. Dettagli: ${parseMessage}`);
+    if (!analysisInfo) {
+      throw new Error(`Il formato della risposta AI non era valido o motore non disponibile. Dettagli: ${lastErr}`);
     }
 
     try {
