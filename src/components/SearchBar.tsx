@@ -39,7 +39,7 @@ export function SearchBar() {
               type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="Incolla l'URL della repository GitHub (es. https://github.com/user/repo)"
+              placeholder="Paste the GitHub repository URL (e.g. https://github.com/user/repo)"
               className="w-full pl-12 pr-4 py-8 text-lg md:text-xl rounded-2xl bg-black/40 border-primary/30 text-white placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-primary shadow-[0_0_15px_rgba(20,250,150,0.15)] transition-all duration-300 focus-visible:shadow-[0_0_30px_rgba(20,250,150,0.3)] backdrop-blur-sm"
               required
               pattern="https://github.com/.*"
@@ -69,7 +69,7 @@ export function SearchBar() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                 >
-                  Analizza Impatto
+                  Analyze Impact
                 </motion.div>
               )}
             </AnimatePresence>

@@ -6,7 +6,7 @@ export async function POST(request: Request) {
     const payload = await request.json();
     if (typeof payload.source_code === 'string') {
       return NextResponse.json(
-        { error: 'Payload non consentito: inviare solo metadati report, non source_code.' },
+        { error: 'Payload not allowed: send only report metadata, not source_code.' },
         { status: 400 }
       );
     }

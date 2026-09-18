@@ -25,7 +25,7 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
     setError(null);
 
     if (!inputCode.trim()) {
-      setError("Incolla prima il blocco di codice da ottimizzare.");
+      setError("Paste the code block to optimize first.");
       return;
     }
 
@@ -42,7 +42,7 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Errore durante la generazione Eco-Fix.");
+        setError(data.error || "Error while generating the Eco-Fix.");
         return;
       }
 
@@ -75,7 +75,7 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
             Eco-Fix AI
           </DialogTitle>
           <DialogDescription>
-            Ottimizzazione assistita per {snippet.filename}
+            AI-assisted optimization for {snippet.filename}
           </DialogDescription>
           {error && <p className="text-sm text-destructive mt-2">{error}</p>}
         </DialogHeader>
@@ -89,13 +89,13 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
             </div>
             <div className="p-4 flex-1 space-y-3">
               <p className="text-xs text-red-200/80">
-                Per privacy il report salva solo metadati. Incolla qui il blocco di codice da ottimizzare.
+                For privacy the report stores only metadata. Paste the code block to optimize here.
               </p>
               <textarea
                 value={inputCode}
                 onChange={(e) => setInputCode(e.target.value)}
                 className="w-full min-h-[240px] bg-black/60 border border-white/10 rounded-md p-3 text-sm font-mono text-red-200"
-                placeholder="Incolla qui il codice del file per Eco-Fix"
+                placeholder="Paste the file's code here for Eco-Fix"
               />
             </div>
           </div>

@@ -3,7 +3,7 @@ import { Cpu, FlaskConical, Leaf, Sigma } from "lucide-react";
 
 export const metadata = {
   title: "Methodology | GreenCode",
-  description: "Approccio statico e dinamico di GreenCode per stimare efficienza energetica e impatto carbonico del software.",
+  description: "GreenCode's static and dynamic approach to estimate software energy efficiency and carbon impact.",
 };
 
 export default function MethodologyPage() {
@@ -19,7 +19,7 @@ export default function MethodologyPage() {
       <section className="relative z-10 w-full max-w-6xl mx-auto px-4 md:px-8 pt-16 pb-10">
         <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-primary">
           <FlaskConical className="h-3.5 w-3.5" />
-          Metodo Scientifico
+          Scientific Method
         </div>
         <h1 className="mt-5 text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
           Metodo GreenCode: trasparenza prima di tutto.
@@ -42,15 +42,12 @@ export default function MethodologyPage() {
           </h2>
 
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            La fase statica analizza il codice con regole AST e assegna pesi a ogni anti-pattern in base al
-            potenziale impatto su CPU, memoria e batteria, soprattutto in scenari mobile.
-            Esempi: query N+1 dentro loop, chiamate API/LLM ridondanti, dipendenze frontend pesanti,
-            rendering React inefficiente.
+            The static phase analyzes code with AST rules and weights each anti-pattern by its potential impact on CPU, memory and battery, especially in mobile scenarios. Examples: N+1 queries in loops, redundant API/LLM calls, heavy frontend dependencies, inefficient React rendering.
           </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <div className="rounded-2xl border border-border/50 bg-background/45 p-4">
-              <h3 className="font-semibold flex items-center gap-2"><Cpu className="h-4 w-4 text-primary" /> Calcolo del punteggio</h3>
+              <h3 className="font-semibold flex items-center gap-2"><Cpu className="h-4 w-4 text-primary" /> Computing the score</h3>
               <p className="text-sm text-muted-foreground mt-2">
                 Ogni finding riduce lo score con una penalita proporzionale alla severita energetica stimata.
                 Lo score finale viene mappato su classe A-G per rendere immediata la lettura del rischio energetico.
@@ -66,11 +63,11 @@ export default function MethodologyPage() {
           </div>
 
           <div className="mt-6 rounded-2xl border border-border/60 bg-background/45 p-4">
-            <h3 className="font-semibold">Comandi di analisi statica</h3>
+            <h3 className="font-semibold">Static analysis commands</h3>
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground list-disc pl-4">
-              <li><code className="px-1 py-0.5 rounded bg-white/10">ecocode analyze</code>: parsing AST locale su JS/TS/React con finding energetici e score A-G.</li>
-              <li><code className="px-1 py-0.5 rounded bg-white/10">ecocode analyze --max-files N</code>: limita il perimetro di analisi.</li>
-              <li><code className="px-1 py-0.5 rounded bg-white/10">ecocode analyze --host URL</code>: invia i metadati del report a un endpoint dashboard specifico.</li>
+              <li><code className="px-1 py-0.5 rounded bg-white/10">ecocode analyze</code>: local AST parsing on JS/TS/React with energy findings and A-G score.</li>
+              <li><code className="px-1 py-0.5 rounded bg-white/10">ecocode analyze --max-files N</code>: limits the analysis scope.</li>
+              <li><code className="px-1 py-0.5 rounded bg-white/10">ecocode analyze --host URL</code>: sends report metadata to a specific dashboard endpoint.</li>
             </ul>
           </div>
         </article>
@@ -80,7 +77,7 @@ export default function MethodologyPage() {
         <article className="rounded-3xl border border-border/50 bg-card/35 backdrop-blur-xl p-6 md:p-8">
           <div className="flex items-center gap-2 text-cyan-300 font-semibold uppercase tracking-[0.12em] text-xs">
             <FlaskConical className="h-4 w-4" />
-            Fisica del Software (Dinamico)
+            Software Physics (Dynamic)
           </div>
 
           <h2 className="mt-3 text-2xl md:text-3xl font-bold tracking-tight">
@@ -88,7 +85,7 @@ export default function MethodologyPage() {
           </h2>
 
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            Il comando CLI <code className="px-1.5 py-0.5 rounded bg-white/10">ecocode profile &lt;file&gt;</code>
+            The CLI command <code className="px-1.5 py-0.5 rounded bg-white/10">ecocode profile &lt;file&gt;</code>
             esegue il file localmente e misura il tempo CPU user/system con moduli nativi Node.js.
             Per analisi piu rappresentative su repository reali, <code className="px-1.5 py-0.5 rounded bg-white/10">ecocode profile project</code>
             esegue piu scenari da config, ripete i benchmark e produce una media pesata.
@@ -107,7 +104,7 @@ CO2_g = (Energia_mWh / 1_000_000) * Carbon_Intensity_gCO2e_per_kWh`}
           </p>
 
           <div className="mt-6 rounded-2xl border border-border/60 bg-background/45 p-4">
-            <h3 className="font-semibold">Config scenari dinamici (project)</h3>
+            <h3 className="font-semibold">Dynamic scenario config (project)</h3>
             <pre className="mt-3 rounded-xl border border-border/60 bg-[oklch(0.1_0_0)] p-4 text-xs md:text-sm text-cyan-200 overflow-x-auto">
 {`{
   "repeat": 3,
@@ -125,30 +122,30 @@ CO2_g = (Energia_mWh / 1_000_000) * Carbon_Intensity_gCO2e_per_kWh`}
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
-              <h3 className="font-semibold text-emerald-300">Profilazione File Singolo</h3>
+              <h3 className="font-semibold text-emerald-300">Single File Profiling</h3>
               <ol className="mt-3 list-decimal pl-4 space-y-2 text-sm text-muted-foreground">
-                <li>Build del progetto se il target e TypeScript: <code className="px-1 py-0.5 rounded bg-white/10">npm run build</code></li>
+                <li>Build the project if the target is TypeScript: <code className="px-1 py-0.5 rounded bg-white/10">npm run build</code></li>
                 <li>Esegui: <code className="px-1 py-0.5 rounded bg-white/10">npx ecocode@latest profile ./dist/index.js</code></li>
-                <li>Confronta CPU/mWh/gCO2e prima e dopo una modifica.</li>
+                <li>Compare CPU/mWh/gCO2e before and after a change.</li>
               </ol>
             </div>
             <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-4">
-              <h3 className="font-semibold text-cyan-300">Profilazione Progetto a Scenari</h3>
+              <h3 className="font-semibold text-cyan-300">Scenario Project Profiling</h3>
               <ol className="mt-3 list-decimal pl-4 space-y-2 text-sm text-muted-foreground">
-                <li>Crea il file config: <code className="px-1 py-0.5 rounded bg-white/10">ecocode.profile.json</code></li>
+                <li>Create the config file: <code className="px-1 py-0.5 rounded bg-white/10">ecocode.profile.json</code></li>
                 <li>Esegui: <code className="px-1 py-0.5 rounded bg-white/10">npx ecocode@latest profile project --config ./ecocode.profile.json --repeat 3</code></li>
-                <li>Usa la media pesata come baseline energetica del repository.</li>
+                <li>Use the weighted average as the repository's energy baseline.</li>
               </ol>
             </div>
           </div>
 
           <div className="mt-6 rounded-2xl border border-border/60 bg-background/45 p-4">
-            <h3 className="font-semibold">Copertura funzionale GreenCode</h3>
+            <h3 className="font-semibold">GreenCode functional coverage</h3>
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground list-disc pl-4">
-              <li><strong className="text-foreground">Analisi statica:</strong> rileva anti-pattern energetici e genera Energy Score A-G.</li>
-              <li><strong className="text-foreground">Profilazione file:</strong> misura consumo CPU reale su uno script/entrypoint.</li>
-              <li><strong className="text-foreground">Profilazione progetto:</strong> aggrega piu scenari reali con pesi e run ripetuti.</li>
-              <li><strong className="text-foreground">Dashboard report:</strong> visualizza KPI energetici e priorita di ottimizzazione.</li>
+              <li><strong className="text-foreground">Static analysis:</strong> detects energy anti-patterns and generates an A-G Energy Score.</li>
+              <li><strong className="text-foreground">Profiling file:</strong> measures real CPU consumption on a script/entrypoint.</li>
+              <li><strong className="text-foreground">Project profiling:</strong> aggregates multiple real scenarios with weights and repeated runs.</li>
+              <li><strong className="text-foreground">Report dashboard:</strong> visualizes energy KPIs and optimization priorities.</li>
             </ul>
           </div>
         </article>

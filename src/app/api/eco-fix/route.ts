@@ -1,15 +1,15 @@
 import { NextResponse } from 'next/server';
 
 function buildPrompt(code: string, filename: string) {
-  return `Agisci come un esperto Green Software Engineer. Ti viene fornito uno snippet inefficiente da ottimizzare per ridurre calcolo CPU, rete e costo server, preservando ESATTAMENTE il comportamento.
-Codice originale (file: ${filename}):
+  return `Act as an expert Green Software Engineer. You are given an inefficient snippet to optimize to reduce CPU compute, network and server cost, preserving EXACTLY the behavior.
+Original code (file: ${filename}):
 \`\`\`
 ${code}
 \`\`\`
 
-Restituisci SOLO un oggetto JSON valido (nessun testo attorno) con questa struttura:
+Return ONLY a valid JSON object (no text around it) with this structure:
 {
-  "fixedCode": "il codice riscritto e ottimizzato, funzionalmente equivalente"
+  "fixedCode": "the rewritten, optimized code, functionally equivalent"
 }`;
 }
 
@@ -60,10 +60,10 @@ async function callNvidia(apiKey: string, prompt: string) {
       if (!res.ok) { lastErr = `NVIDIA HTTP ${res.status} (${model})`; continue; }
       const result = await res.json();
       const raw = result?.choices?.[0]?.message?.content;
-      if (!raw) { lastErr = `Risposta vuota (${model})`; continue; }
+      if (!raw) { lastErr = `Empty response (${model})`; continue; }
       const parsed = extractJson(raw);
       if (parsed && typeof parsed.fixedCode === 'string') return parsed;
-      lastErr = `JSON non valido (${model})`;
+      lastErr = `Invalid JSON (${model})`;
     } catch (e) {
       lastErr = (e instanceof Error ? e.message : String(e)) + ` (${model})`;
     }

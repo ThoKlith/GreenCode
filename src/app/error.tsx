@@ -18,9 +18,9 @@ export default function Error({
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center">
       <AlertTriangle className="w-12 h-12 text-yellow-500 mb-4" />
-      <h2 className="text-2xl font-bold mb-2">Qualcosa è andato storto</h2>
+      <h2 className="text-2xl font-bold mb-2">Something went wrong</h2>
       <p className="text-muted-foreground mb-4 max-w-md">
-        {error.message || "Si è verificato un errore imprevisto."}
+        {error.message || "An unexpected error occurred."}
       </p>
       <p className="text-xs text-muted-foreground mb-6 font-mono">
         {error.digest && `Digest: ${error.digest}`}

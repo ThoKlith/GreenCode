@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GreenCode | L'impatto ecologico del tuo codice",
-  description: "Analizza e ottimizza l'ecosostenibilità delle tue repository GitHub.",
+  title: "GreenCode | The ecological impact of your code",
+  description: "Analyze and optimize the eco-sustainability of your GitHub repositories.",
 };
 
 export default function RootLayout({

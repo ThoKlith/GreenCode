@@ -9,9 +9,9 @@ export function VSCodeCta() {
             <Code2 className="w-4 h-4" />
             Programma in tempo reale
           </div>
-          <h3 className="text-xl md:text-2xl font-bold mb-2">Mantieni la Classe A mentre scrivi</h3>
+          <h3 className="text-xl md:text-2xl font-bold mb-2">Keep Class A while you code</h3>
           <p className="text-muted-foreground text-sm max-w-2xl">
-            Installa l&apos;estensione VS Code di GreenCode: evidenzia sprechi energetici in diretta e applica Eco-Fix AI dalla lampadina, senza aspettare il report finale.
+            Install the GreenCode VS Code extension: it highlights energy waste live and applies AI Eco-Fix from the lightbulb, without waiting for the final report.
           </p>
         </div>
 
@@ -22,7 +22,7 @@ export function VSCodeCta() {
           className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
         >
           <Sparkles className="w-4 h-4" />
-          Aggiungi a VS Code
+          Add to VS Code
         </a>
       </div>
     </section>

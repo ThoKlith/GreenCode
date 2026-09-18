@@ -7,22 +7,22 @@ import { motion } from "framer-motion";
 const terminalLines = [
   { text: "$ npx ecocode@latest profile project --config ./ecocode.profile.json", color: "text-emerald-400", delay: 0 },
   { text: "", color: "", delay: 0.3 },
-  { text: "⚠ Attenzione: il comando profile esegue il codice localmente.", color: "text-yellow-300", delay: 0.5 },
+  { text: "⚠ Warning: the profile command runs the code locally.", color: "text-yellow-300", delay: 0.5 },
   { text: "", color: "", delay: 0.7 },
   { text: "✓ Scenario API startup (3/3)", color: "text-green-400", delay: 1.0 },
   { text: "✓ Scenario job notturno (3/3)", color: "text-green-400", delay: 1.5 },
-  { text: "✓ Profilazione progetto completata.", color: "text-green-400", delay: 2.0 },
+  { text: "✓ Project profiling completed.", color: "text-green-400", delay: 2.0 },
   { text: "", color: "", delay: 2.3 },
   { text: "┌──────────────────────────────────────────┐", color: "text-white/60", delay: 2.5 },
-  { text: "│     ⚙ RISULTATI PROFILAZIONE DINAMICA    │", color: "text-white font-bold", delay: 2.6 },
+  { text: "│     ⚙ DYNAMIC PROFILING RESULTS          │", color: "text-white font-bold", delay: 2.6 },
   { text: "├──────────────────────────────────────────┤", color: "text-white/60", delay: 2.7 },
   { text: "  CPU Medio Pesato:      148.2 ms", color: "text-cyan-400", delay: 2.9 },
   { text: "  Energia Media Pesata:  2.6764 mWh", color: "text-emerald-300", delay: 3.1 },
   { text: "  CO2 Media Pesata:      1.18e-3 gCO2e", color: "text-yellow-300", delay: 3.3 },
-  { text: "  Scenari:               2", color: "text-white/80", delay: 3.5 },
+  { text: "  Scenarios:               2", color: "text-white/80", delay: 3.5 },
   { text: "└──────────────────────────────────────────┘", color: "text-white/60", delay: 3.7 },
   { text: "", color: "", delay: 3.9 },
-  { text: "Suggerimento: usa --repeat 5 per dati stabili", color: "text-white/70", delay: 4.1 },
+  { text: "Tip: use --repeat 5 for stable data", color: "text-white/70", delay: 4.1 },
   { text: "Poi confronta baseline vs versione ottimizzata", color: "text-white/70", delay: 4.3 },
 ];
 
@@ -52,7 +52,7 @@ export function CliSection() {
         <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
           Repo privata?{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-[#4ADE80] to-[#2DD4BF]">
-            Analizzala in locale.
+            Analyze it locally.
           </span>
         </h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -119,7 +119,7 @@ export function CliSection() {
               <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center text-primary font-bold text-sm">
                 1
               </div>
-              <h3 className="font-semibold text-lg">Installa ed esegui</h3>
+              <h3 className="font-semibold text-lg">Install and run</h3>
             </div>
             <p className="text-muted-foreground text-sm mb-4">
               Modalita file singolo o multi-scenario progetto. Richiede Node.js 18+.
@@ -143,11 +143,11 @@ export function CliSection() {
               <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center text-primary font-bold text-sm">
                 2
               </div>
-              <h3 className="font-semibold text-lg">Analisi in locale</h3>
+              <h3 className="font-semibold text-lg">Local analysis</h3>
             </div>
             <p className="text-muted-foreground text-sm">
-              La CLI esegue codice in locale e misura CPU user/system per stimare mWh, Joule e gCO2e.
-              <strong className="text-foreground"> Con profile project aggreghi scenari reali del repo con media pesata.</strong>
+              The CLI runs code locally and measures user/system CPU to estimate mWh, Joules and gCO2e.
+              <strong className="text-foreground"> With profile project you aggregate real repo scenarios with a weighted average.</strong>
             </p>
           </div>
 
@@ -157,11 +157,10 @@ export function CliSection() {
               <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center text-primary font-bold text-sm">
                 3
               </div>
-              <h3 className="font-semibold text-lg">Report visivo premium</h3>
+              <h3 className="font-semibold text-lg">Premium visual report</h3>
             </div>
             <p className="text-muted-foreground text-sm">
-              Definisci scenari nel file ecocode.profile.json, esegui benchmark ripetuti e ottieni un numero comparabile
-              baseline vs ottimizzazione senza caricare sorgente su server.
+              Define scenarios in the ecocode.profile.json file, run repeated benchmarks and get a comparable number, baseline vs optimization, without uploading source to a server.
             </p>
           </div>
 
@@ -169,7 +168,7 @@ export function CliSection() {
           <div className="flex items-center gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/15">
             <Shield className="w-5 h-5 text-emerald-400 shrink-0" />
             <p className="text-sm text-emerald-300/80">
-              <strong className="text-emerald-400">Privacy by Design</strong> — Analisi AST 100% locale: nessuna riga di codice viene inviata al server.
+              <strong className="text-emerald-400">Privacy by Design</strong> — 100% local AST analysis: no line of code is sent to the server.
             </p>
           </div>
         </motion.div>

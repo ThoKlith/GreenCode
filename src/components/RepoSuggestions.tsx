@@ -76,7 +76,7 @@ export function RepoSuggestions({ onSelect }: { onSelect: (url: string) => void 
     >
       <div className="flex items-center space-x-2 text-primary font-medium px-2 mb-4">
         <GitBranch className="w-5 h-5" />
-        <h2>Le tue repository</h2>
+        <h2>Your repositories</h2>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {repos.map((repo, i) => (

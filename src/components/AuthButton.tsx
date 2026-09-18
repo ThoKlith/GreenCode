@@ -54,7 +54,7 @@ export default function AuthButton() {
     return (
       <Button variant="outline" size="sm" disabled>
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        Caricamento...
+        Loading...
       </Button>
     );
   }
@@ -89,7 +89,7 @@ export default function AuthButton() {
 
   return (
     <Button onClick={handleLogin} variant="default" className="shadow-[0_0_12px_rgba(20,250,150,0.4)] transition-all hover:shadow-[0_0_20px_rgba(20,250,150,0.6)]">
-      <LogIn className="mr-2 h-4 w-4" /> Entra con GitHub
+      <LogIn className="mr-2 h-4 w-4" /> Sign in with GitHub
     </Button>
   );
 }

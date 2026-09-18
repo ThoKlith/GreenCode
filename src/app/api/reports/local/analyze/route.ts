@@ -4,7 +4,7 @@ export async function POST() {
   return NextResponse.json(
     {
       error:
-        'Endpoint deprecato: la CLI GreenCode esegue analisi AST in locale e invia solo metadati a /api/reports/local.',
+        'Deprecated endpoint: the GreenCode CLI runs AST analysis locally and only sends metadata to /api/reports/local.',
     },
     { status: 410 }
   );

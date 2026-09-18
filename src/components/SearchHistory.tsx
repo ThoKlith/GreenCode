@@ -33,7 +33,7 @@ export default async function SearchHistory() {
   if (!history || history.length === 0) {
     return (
       <div className="mt-16 w-full max-w-4xl opacity-50 text-center text-sm">
-        Nessuna ricerca passata trovata.
+        No past searches found.
       </div>
     );
   }
@@ -53,7 +53,7 @@ export default async function SearchHistory() {
     <div className="mt-20 w-full max-w-4xl space-y-4">
       <div className="flex items-center space-x-2 text-primary font-medium px-2">
         <Activity className="w-5 h-5" />
-        <h2>Le tue ultime analisi</h2>
+        <h2>Your latest analyses</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {(history as HistoryItem[]).map((item) => (
@@ -70,7 +70,7 @@ export default async function SearchHistory() {
                 </div>
                 <div className="flex items-center space-x-3 ml-4 shrink-0">
                   <div className="text-right">
-                    <p className="text-xs text-muted-foreground">Efficienza</p>
+                    <p className="text-xs text-muted-foreground">Efficiency</p>
                     <p className="font-mono font-medium text-sm">{item.efficiency_score}/100</p>
                   </div>
                   <Badge className={`${getBadgeColor(item.energy_class)} text-white font-bold text-lg px-2 shadow-sm`}>

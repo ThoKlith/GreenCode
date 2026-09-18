@@ -26,7 +26,7 @@ async function fetchGithubFiles(repoOwner: string, repoName: string, token?: str
   // 1. Prendi il ramo principale
   const repoRes = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}`, { headers });
   if (!repoRes.ok) {
-    throw new Error(`Impossibile trovare la repository. Potrebbe essere privata o potresti aver esaurito il Rate Limit (60 req/h senza token).`);
+    throw new Error(`Repository not found. It may be private or you may have exceeded the Rate Limit (60 req/h without a token).`);
   }
   const repoInfo = (await repoRes.json()) as RepoInfo;
   const defaultBranch = repoInfo.default_branch;
@@ -34,7 +34,7 @@ async function fetchGithubFiles(repoOwner: string, repoName: string, token?: str
   // 2. Naviga l'albero
   const treeUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/git/trees/${defaultBranch}?recursive=1`;
   const treeRes = await fetch(treeUrl, { headers });
-  if (!treeRes.ok) throw new Error("Impossibile leggere l'albero dei file dal repository.");
+  if (!treeRes.ok) throw new Error("Unable to read the file tree from the repository.");
   const treeData = (await treeRes.json()) as TreeResponse;
 
   // 3. Filtra file sorgente con LOGICA (dove vivono gli sprechi energetici).
@@ -109,7 +109,7 @@ async function fetchGithubFiles(repoOwner: string, repoName: string, token?: str
 
 export async function analyzeRepository(url: string) {
   if (!url || !url.includes('github.com')) {
-    throw new Error("URL GitHub non valido.");
+    throw new Error("Invalid GitHub URL.");
   }
 
   const decodedUrl = decodeURIComponent(url);
@@ -122,7 +122,7 @@ export async function analyzeRepository(url: string) {
   }
 
   if (parts.length < 2) {
-    throw new Error("Formato repository invalido. Usa owner/repo.");
+    throw new Error("Invalid repository format. Use owner/repo.");
   }
 
   const repoOwner = parts[0];
@@ -132,7 +132,7 @@ export async function analyzeRepository(url: string) {
 
   const nvidiaKey = process.env.NVIDIA_API_KEY;
   if (!nvidiaKey) {
-    throw new Error("Chiave API NVIDIA non configurata (NVIDIA_API_KEY).");
+    throw new Error("NVIDIA API key not configured (NVIDIA_API_KEY).");
   }
 
   // Preleva il vero codice sorgente limitato
@@ -140,35 +140,37 @@ export async function analyzeRepository(url: string) {
   const sourceCodeBundle = await fetchGithubFiles(repoOwner, repoNameInfo, githubToken);
 
   if (!sourceCodeBundle || sourceCodeBundle.length < 10) {
-    throw new Error("Nessun codice sorgente valevole trovato. La repository è vuota o supporta solo linguaggi non parsati.");
+    throw new Error("No valid source code found. The repository is empty or only contains unparsed languages.");
   }
 
-  const prompt = `Agisci come esperto di Eco-Computing e ottimizzazione del software sostenibile.
-Ti fornirò un bundle contenente il listato di file di una vera repository: "${repo_name}". 
+  const prompt = `Act as an expert in Eco-Computing and sustainable software optimization.
+I will give you a bundle containing the file listing of a real repository: "${repo_name}".
 
-Il tuo compito è analizzare **QUESTO SPECIFICO CODICE REALE** per scovare vere inefficienze energetiche (come cicli CPU pesanti continui non ottimizzati, chiamate API senza memo/cache, re-render continui nei framework Web, font o import non messi correttamente ecc.).
+Your task is to analyze **THIS SPECIFIC REAL CODE** to find genuine energy inefficiencies (such as heavy uninterrupted CPU loops, API calls without memoization/caching, continuous re-renders in web frameworks, badly placed fonts or imports, etc.).
 
 [SOURCE_CODE]
 ${sourceCodeBundle}
 [/SOURCE_CODE]
 
-Basati ESCLUSIVAMENTE sui difetti che trovi in questo preciso sorgente fornito in alto. 
-NON INVENTARE FILES e preleva gli snippet da righe vere del codice.
+Base your analysis EXCLUSIVELY on the flaws you find in this exact source provided above.
+DO NOT INVENT FILES and take snippets from real lines of the code.
 
-IMPORTANTE: i valori qui sotto sono SOLO placeholder di formato. Calcola i valori REALI analizzando il codice fornito — NON copiare i placeholder. Un codice con loop annidati O(n^2), concatenazioni di stringhe in loop, o lavoro ridondante ripetuto è inefficiente (classe E-G, efficiency_score basso). Un codice pulito e ottimizzato è classe A-B con score alto.
+IMPORTANT: write ALL text fields (especially "description") in ENGLISH.
 
-Restituisci SOLO un oggetto JSON valido con questa struttura (sostituisci OGNI placeholder con il valore reale calcolato):
+IMPORTANT: the values below are ONLY format placeholders. Compute the REAL values by analyzing the provided code — DO NOT copy the placeholders. Code with nested O(n^2) loops, string concatenation in loops, or repeated redundant work is inefficient (class E-G, low efficiency_score). Clean and optimized code is class A-B with a high score.
+
+Return ONLY a valid JSON object with this structure (replace EACH placeholder with the real computed value):
 {
-  "energy_class": "<lettera A-G basata sulla reale efficienza del codice>",
-  "co2_estimate": <numero: stima gCO2e reale>,
-  "efficiency_score": <intero 0-100 reale>,
-  "ai_optimization_score": <intero 0-100 reale>,
+  "energy_class": "<a single letter A-G based on the real efficiency of the code>",
+  "co2_estimate": <number: real gCO2e estimate>,
+  "efficiency_score": <integer 0-100, real>,
+  "ai_optimization_score": <integer 0-100, real>,
   "snippets": [
     {
       "id": "vuln-1",
-      "filename": "<nome ESATTO del vero file dove sta il problema>",
-      "description": "<il problema energetico reale trovato in quel codice>",
-      "code": "<le esatte righe incriminate, copiate dal sorgente>"
+      "filename": "<EXACT name of the real file where the problem is>",
+      "description": "<the real energy problem found in that code, in English>",
+      "code": "<the exact offending lines, copied from the source>"
     }
   ]
 }`;
@@ -226,16 +228,16 @@ Restituisci SOLO un oggetto JSON valido con questa struttura (sostituisci OGNI p
         if (!res.ok) { lastErr = `NVIDIA HTTP ${res.status} (${model})`; continue; }
         const result = await res.json();
         const text = result?.choices?.[0]?.message?.content;
-        if (!text) { lastErr = `Risposta vuota (${model})`; continue; }
+        if (!text) { lastErr = `Empty response (${model})`; continue; }
         const parsed = extractJson(text);
         if (parsed && parsed.energy_class) { analysisInfo = parsed; break; }
-        lastErr = `JSON non valido o incompleto (${model})`;
+        lastErr = `Invalid or incomplete JSON (${model})`;
       } catch (e) {
         lastErr = (e instanceof Error ? e.message : String(e)) + ` (${model})`;
       }
     }
     if (!analysisInfo) {
-      throw new Error(`Il formato della risposta AI non era valido o motore non disponibile. Dettagli: ${lastErr}`);
+      throw new Error(`The AI response format was invalid or the engine is unavailable. Details: ${lastErr}`);
     }
 
     try {
@@ -265,7 +267,7 @@ Restituisci SOLO un oggetto JSON valido con questa struttura (sostituisci OGNI p
     if (errorMsg.includes("429") || errorMsg.includes("quota")) {
       throw new Error("Limite richieste API raggiunto. Attendi un minuto e riprova.");
     } else if (errorMsg.includes("timeout") || errorMsg.includes("fetch failed")) {
-      throw new Error("L'analisi ha impiegato troppo tempo o c'è un problema di rete (Timeout).");
+      throw new Error("The analysis took too long or there's a network problem (Timeout).");
     }
     
     throw new Error(`Errore AI: ${errorMsg}`);

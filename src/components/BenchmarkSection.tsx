@@ -6,10 +6,10 @@ import { Gauge, TerminalSquare } from "lucide-react";
 const benchmarkLines = [
   { text: "$ ecocode profile project --config ./ecocode.profile.json", tone: "text-emerald-400" },
   { text: "", tone: "" },
-  { text: "Attenzione: il comando profile esegue il codice localmente.", tone: "text-yellow-300" },
-  { text: "Profilazione dinamica progetto in corso...", tone: "text-white/70" },
+  { text: "Warning: the profile command runs the code locally.", tone: "text-yellow-300" },
+  { text: "Dynamic project profiling in progress...", tone: "text-white/70" },
   { text: "", tone: "" },
-  { text: "Scenari: 3  |  Run per scenario: 5", tone: "text-white/85" },
+  { text: "Scenarios: 3  |  Runs per scenario: 5", tone: "text-white/85" },
   { text: "CPU medio pesato:      148.20 ms", tone: "text-cyan-300" },
   { text: "Energia media pesata:  2.6764 mWh", tone: "text-emerald-300 font-semibold" },
   { text: "CO2 media pesata:      1.18e-3 gCO2e", tone: "text-yellow-200" },
@@ -32,13 +32,11 @@ export function BenchmarkSection() {
           </div>
 
           <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-[1.06]">
-            Oltre la teoria: Misurazione Dinamica.
+            Beyond theory: Dynamic Measurement.
           </h2>
 
           <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-            Mentre il linter ti guida nella scrittura, il nostro profiler CLI mette il tuo codice alla prova.
-            Esegui benchmark reali per scoprire l&apos;impatto fisico del tuo software in milliwattora.
-            Dati certi per ottimizzazioni estreme, su singoli file o interi flussi progetto.
+            While the linter guides you as you write, our CLI profiler puts your code to the test. Run real benchmarks to discover the physical impact of your software in milliwatt-hours. Solid data for extreme optimizations, on single files or entire project flows.
           </p>
         </div>
 
@@ -71,22 +69,22 @@ export function BenchmarkSection() {
 
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           <div className="rounded-2xl border border-border/60 bg-background/40 p-4 md:p-5">
-            <p className="text-xs uppercase tracking-[0.12em] text-emerald-300 font-semibold">Profilazione File Singolo</p>
+            <p className="text-xs uppercase tracking-[0.12em] text-emerald-300 font-semibold">Single File Profiling</p>
             <ol className="mt-3 space-y-2 text-sm text-muted-foreground list-decimal pl-4">
-              <li>Compila il progetto se il target e TypeScript (es. npm run build).</li>
-              <li>Scegli un entrypoint reale (.js/.mjs/.cjs), non una utility isolata.</li>
+              <li>Build the project if the target is TypeScript (e.g. npm run build).</li>
+              <li>Choose a real entrypoint (.js/.mjs/.cjs), not an isolated utility.</li>
               <li>Esegui: <span className="font-mono text-foreground">npx ecocode@latest profile ./dist/index.js</span></li>
-              <li>Leggi CPU Time, mWh e gCO2e per confrontare prima/dopo ottimizzazione.</li>
+              <li>Read CPU Time, mWh and gCO2e to compare before/after optimization.</li>
             </ol>
           </div>
 
           <div className="rounded-2xl border border-border/60 bg-background/40 p-4 md:p-5">
-            <p className="text-xs uppercase tracking-[0.12em] text-cyan-300 font-semibold">Profilazione Progetto a Scenari</p>
+            <p className="text-xs uppercase tracking-[0.12em] text-cyan-300 font-semibold">Scenario Project Profiling</p>
             <ol className="mt-3 space-y-2 text-sm text-muted-foreground list-decimal pl-4">
-              <li>Crea <span className="font-mono text-foreground">ecocode.profile.json</span> con gli scenari reali del repo.</li>
-              <li>Imposta un <span className="font-mono text-foreground">weight</span> per ogni scenario in base al traffico/uso.</li>
+              <li>Crea <span className="font-mono text-foreground">ecocode.profile.json</span> with the real scenarios of the repo.</li>
+              <li>Imposta un <span className="font-mono text-foreground">weight</span> for each scenario based on traffic/usage.</li>
               <li>Esegui: <span className="font-mono text-foreground">npx ecocode@latest profile project --config ./ecocode.profile.json --repeat 3</span></li>
-              <li>Usa la media pesata finale come KPI energetico del progetto.</li>
+              <li>Use the final weighted average as the project's energy KPI.</li>
             </ol>
           </div>
         </div>

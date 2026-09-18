@@ -16,7 +16,7 @@ export function EnergyBadge({ letter }: { letter: string }) {
     >
       <div className="absolute inset-0 bg-primary/10 rounded-full blur-3xl" />
       <div className="text-sm font-semibold tracking-wider text-muted-foreground uppercase mb-4 relative z-10">
-        Classe Energetica
+        Energy Class
       </div>
       <div
         className={`w-32 h-32 md:w-48 md:h-48 flex items-center justify-center rounded-2xl bg-gradient-to-br ${colors} font-black text-7xl md:text-9xl relative z-10 border border-white/20`}

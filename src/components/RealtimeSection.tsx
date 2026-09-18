@@ -23,15 +23,14 @@ export function RealtimeSection() {
       >
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
           <Bolt className="w-4 h-4" />
-          Programma in Tempo Reale
+          Programma in Time Reale
         </div>
         <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
           GreenCode ora vive
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-[#4ADE80] to-[#2DD4BF]"> dentro VS Code</span>
         </h2>
         <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
-          Non aspettare di aver finito. GreenCode ti assiste mentre scrivi, evidenziando gli sprechi energetici come un correttore ortografico.
-          Ottimizza il tuo codice prima ancora di salvarlo.
+          Don't wait until you're done. GreenCode assists you as you write, highlighting energy waste like a spell-checker. Optimize your code before you even save it.
         </p>
       </motion.div>
 
@@ -71,7 +70,7 @@ export function RealtimeSection() {
               >
                 <p className="text-emerald-300 text-xs font-semibold mb-1">GreenCode Insight</p>
                 <p className="text-white/80 text-xs leading-relaxed">
-                  Questo loop puo rallentare il server e consumare batteria inutile. Vuoi applicare una Eco-Fix automatica?
+                  This loop can slow the server and waste battery. Do you want to apply an automatic Eco-Fix?
                 </p>
               </motion.div>
             </div>
@@ -91,7 +90,7 @@ export function RealtimeSection() {
               <div>
                 <h3 className="font-semibold text-lg">Feedback immediato, stress zero</h3>
                 <p className="text-muted-foreground text-sm mt-1">
-                  Sottolineature verdi e gialle mostrano solo i pattern che contano, senza rumore e senza interrompere il flusso.
+                  Green and yellow underlines show only the patterns that matter, without noise and without interrupting your flow.
                 </p>
               </div>
             </div>
@@ -101,7 +100,7 @@ export function RealtimeSection() {
             <div className="flex items-start gap-3">
               <Sparkles className="w-5 h-5 text-primary mt-0.5" />
               <div>
-                <h3 className="font-semibold text-lg">Quick Fix con AI</h3>
+                <h3 className="font-semibold text-lg">AI Quick Fix</h3>
                 <p className="text-muted-foreground text-sm mt-1">
                   Un click sulla lampadina e GreenCode propone un refactoring energeticamente migliore, rispettando il tuo contesto locale.
                 </p>
@@ -115,7 +114,7 @@ export function RealtimeSection() {
             rel="noreferrer"
             className="inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_10px_40px_rgba(16,185,129,0.25)]"
           >
-            Aggiungi a VS Code
+            Add to VS Code
           </a>
         </motion.div>
       </div>
