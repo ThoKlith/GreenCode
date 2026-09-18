@@ -1,48 +1,48 @@
-# GreenCode — Overview del progetto
+# GreenCode - Project Overview
 
-> **Il primo tool che *misura* l'impronta energetica del tuo codice invece di *indovinarla* — e la corregge con un agente AI su modelli NVIDIA.**
+> **The first tool that *measures* your code's energy footprint instead of *guessing* it - and fixes it with an AI agent on NVIDIA models.**
 
-La maggior parte dei tool "green" chiede a un LLM di stimare a occhio un punteggio. GreenCode è diverso: **esegue il codice, conta i cicli CPU reali**, li converte in energia (mWh) e CO₂ (gCO₂e) con una formula fisica trasparente, e poi passa quei **numeri misurati** a un modello NVIDIA che propone ottimizzazioni concrete — restituite come **etichetta energetica A–G**, come un elettrodomestico.
+Most "green" tools just ask an LLM to eyeball a score. GreenCode is different: it **runs the code, counts real CPU cycles**, converts them to energy (mWh) and CO2 (gCO2e) with a transparent physics formula, and then feeds those **measured numbers** to an NVIDIA model that proposes concrete optimizations - returned as an **A-G energy label**, like an appliance.
 
-## L'innovazione: fondato sulla misura, non sull'ipotesi
+## The innovation: grounded on measurement, not on guessing
 
 | | GreenCode |
 |---|---|
-| **Misura** | Profiling dinamico reale (CLI): esegue il codice, misura CPU → mWh → gCO₂e (formula pubblica nella pagina Methodology) |
-| **Ragiona** | Un modello NVIDIA riceve il profilo *misurato* + il sorgente e restituisce ottimizzazioni specifiche, riga per riga |
-| **Classifica** | Una **classe energetica A–G** intuitiva, per file e per repository |
-| **Agisce** | **Eco-Fix** con un click: l'AI riscrive lo snippet inefficiente preservando il comportamento |
+| **Measure** | Real dynamic profiling (CLI): runs the code, measures CPU -> mWh -> gCO2e (formula public on the Methodology page) |
+| **Reason** | An NVIDIA model receives the *measured* profile + source and returns specific, line-level optimizations |
+| **Classify** | An intuitive **A-G energy class**, per file and per repository |
+| **Act** | **Eco-Fix** with one click: the AI rewrites the inefficient snippet, preserving behavior |
 
-La misura è il cuore onesto; l'AI è fondata su di essa. La pagina Methodology pubblica la conversione esatta (`Energia_mWh = CPU_Time_ms × CPU_Wattage / 3600`, intensità di rete 442 gCO₂e/kWh): trasparenza, non fumo.
+Measurement is the honest core; the AI is grounded on it. The Methodology page publishes the exact conversion (`Energy_mWh = CPU_Time_ms x CPU_Wattage / 3600`, grid intensity 442 gCO2e/kWh): transparency, not smoke.
 
-## Motore AI
+## AI engine
 
-Tutta l'inferenza AI gira su **NVIDIA NIM** (`https://integrate.api.nvidia.com`). Modello primario: **`google/gemma-4-31b-it`** per analisi JSON strutturata e diretta; fallback automatico a **`nvidia/nemotron-3-super-120b`** e **`nemotron-3-ultra-550b`**. Ogni chiamata ha estrazione JSON robusta e fallback tra modelli, così una risposta instabile non rompe mai il flusso.
+All AI inference runs on **NVIDIA NIM** (`https://integrate.api.nvidia.com`). Primary model: **`google/gemma-4-31b-it`** for direct, structured JSON analysis; automatic fallback to **`nvidia/nemotron-3-super-120b`** and **`nemotron-3-ultra-550b`**. Every model call has robust JSON extraction and cross-model fallback, so an unstable response never breaks the flow.
 
-## Architettura
+## Architecture
 
-- **Web app** (Next.js 16 + Turbopack): incolli un URL GitHub → classe energetica, stima CO₂, punteggio di efficienza, e le inefficienze trovate dall'AI con Eco-Fix.
-- **CLI** (`npx ecocode@latest`): profiling dinamico reale in locale (privacy — il codice non lascia mai la macchina).
-- **Estensione VS Code**: lint energetico nell'editor.
-- **Agent** (`/agent`): la pipeline fondata misura→ottimizza su qualsiasi repo.
+- **Web app** (Next.js 16 + Turbopack): paste a GitHub URL -> energy class, CO2 estimate, efficiency score, and the AI-found inefficiencies with Eco-Fix.
+- **CLI** (`npx ecocode@latest`): real dynamic profiling locally (privacy - code never leaves the machine).
+- **VS Code extension**: in-editor energy linting.
+- **Agent** (`/agent`): the grounded measure -> optimize pipeline over any repo.
 
-## Come girarlo
+## How to run it
 
 ```bash
-# API key: crea un account gratuito su build.nvidia.com (senza carta), metti la key in .env.local:
+# API key: create a free NVIDIA account at build.nvidia.com (no card), put the key in .env.local:
 #   NVIDIA_API_KEY=nvapi-...
 
-# Web app (Docker — consigliato, evita problemi di ambiente):
+# Web app (Docker - recommended, avoids environment issues):
 docker run -d --name gc-web -p 4321:3000 \
   -v "$(pwd):/app" -v gc-node-modules:/app/node_modules -v gc-next:/app/.next \
   -w /app node:20 sh -c "npm install && npm run dev -- -p 3000 -H 0.0.0.0"
-# → http://localhost:4321
+# -> http://localhost:4321
 
-# Agent (misura reale → ottimizzazione NVIDIA):
-node agent/analyze.mjs <file.js>                     # singolo file, misura reale
-node agent/scan.mjs https://github.com/owner/repo    # repo intero, classe energetica
+# Agent (real measurement -> NVIDIA optimization):
+node agent/analyze.mjs <file.js>                     # single file, real measurement
+node agent/scan.mjs https://github.com/owner/repo    # whole repo, energy class
 ```
 
-## Nota di onestà
+## Honesty note
 
-La conversione CPU→energia→CO₂ usa coefficienti trasparenti e documentati (una stima in stile Software Carbon Intensity, non una calibrazione da laboratorio) — dichiarati apertamente nella pagina Methodology. Per i repository analizzati via web app (dove non si può eseguire codice arbitrario in sicurezza) la classe energetica è una stima del modello NVIDIA fondata su segnali di complessità reali; la CLI fornisce la misura dinamica reale per il codice che esegui in locale.
+The CPU->energy->CO2 conversion uses transparent, documented coefficients (a Software-Carbon-Intensity-style estimate, not a lab calibration) - stated openly on the Methodology page. For repositories analyzed via the web app (where arbitrary code can't be safely executed) the energy class is an NVIDIA-model estimate grounded on real complexity signals; the CLI provides the real dynamic measurement for code you run locally.

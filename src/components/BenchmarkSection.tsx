@@ -10,9 +10,9 @@ const benchmarkLines = [
   { text: "Dynamic project profiling in progress...", tone: "text-white/70" },
   { text: "", tone: "" },
   { text: "Scenarios: 3  |  Runs per scenario: 5", tone: "text-white/85" },
-  { text: "CPU medio pesato:      148.20 ms", tone: "text-cyan-300" },
-  { text: "Energia media pesata:  2.6764 mWh", tone: "text-emerald-300 font-semibold" },
-  { text: "CO2 media pesata:      1.18e-3 gCO2e", tone: "text-yellow-200" },
+  { text: "Weighted avg CPU:      148.20 ms", tone: "text-cyan-300" },
+  { text: "Weighted avg Energy:   2.6764 mWh", tone: "text-emerald-300 font-semibold" },
+  { text: "Weighted avg CO2:      1.18e-3 gCO2e", tone: "text-yellow-200" },
 ];
 
 export function BenchmarkSection() {

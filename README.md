@@ -1,49 +1,49 @@
 # 🌱 GreenCode - Intelligent Code Sustainability
 
-GreenCode è un ecosistema composto da Web App, CLI e Estensione VS Code per analizzare automaticamente la sostenibilità, le performance energetiche e l'impatto di un progetto software. Identifica i colli di bottiglia energetici, ottimizza le query ed evidenzia componenti UI lenti che fanno sprecare batteria ai dispositivi dei tuoi utenti.
+GreenCode is an ecosystem made of a Web App, a CLI and a VS Code extension that automatically analyzes the sustainability, energy performance and impact of a software project. It identifies energy bottlenecks, optimizes queries and highlights slow UI components that drain the batteries of your users' devices.
 
-## Modalità d'uso
+## How to use it
 
-Hai tre modi (estremamente fighi) per usare GreenCode a seconda delle tue esigenze:
+You have three (extremely cool) ways to use GreenCode depending on your needs:
 
-### 1. 🌐 Web App (Per Repo Pubbliche)
-Hai un repository GitHub pubblico? Apri la pagina della Web App, inserisci l'URL del tuo progetto GitHub, e lascia che il nostro motore di analisi cloud calcoli l'Energy Score e ti offra consigli di refactoring visivi direttamente nella nostra dashboard premium.
+### 1. 🌐 Web App (for public repos)
+Got a public GitHub repository? Open the Web App, paste your GitHub project URL, and let our cloud analysis engine compute the Energy Score and give you visual refactoring suggestions right in our premium dashboard.
 
-### 2. 💻 CLI Locale (Per Repo Private)
-Stai lavorando su codice aziendale off-limits per il web o repo privati?
-Puoi usare la nostra **GreenCode CLI** Node.js. Il calcolo avviene in locale tramite analisi statica AST: il codice non viene inviato al backend.
+### 2. 💻 Local CLI (for private repos)
+Working on company code that's off-limits for the web, or private repos?
+You can use our **GreenCode CLI** (Node.js). The computation happens locally via static AST analysis: the code is never sent to the backend.
 
-#### Installazione Utente Finale (consigliata)
+#### End-user installation (recommended)
 
-Apri la cartella del tuo progetto e lancia:
+Open your project folder and run:
 
 ```bash
 npx ecocode@latest analyze
 ```
 
-Opzioni utili:
+Useful options:
 
 ```bash
-# usa un host diverso (es. staging o locale)
+# use a different host (e.g. staging or local)
 npx ecocode@latest analyze --host http://localhost:3000
 
-# limita i file analizzati
+# limit the analyzed files
 npx ecocode@latest analyze --max-files 50
 
-# esegue e profila dinamicamente un file locale (CPU -> mWh -> CO2)
+# run and dynamically profile a local file (CPU -> mWh -> CO2)
 npx ecocode@latest profile ./dist/index.js
 
-# profila l'intero progetto tramite scenari configurati
+# profile the whole project through configured scenarios
 npx ecocode@latest profile project --config ./ecocode.profile.json --repeat 5
 ```
 
-Profilazione dinamica progetto (multi-scenario):
+Dynamic project profiling (multi-scenario):
 
-1. Crea `ecocode.profile.json` nella root (puoi partire da `ecocode.profile.example.json`).
-2. Definisci gli scenari reali da eseguire (entrypoint JS/MJS/CJS) e un peso opzionale.
-3. Lancia `npx ecocode@latest profile project` per ottenere media pesata CPU/mWh/gCO2e.
+1. Create `ecocode.profile.json` in the root (you can start from `ecocode.profile.example.json`).
+2. Define the real scenarios to run (JS/MJS/CJS entrypoints) and an optional weight.
+3. Run `npx ecocode@latest profile project` to get a weighted CPU/mWh/gCO2e average.
 
-Esempio config:
+Example config:
 
 ```json
 {
@@ -55,7 +55,7 @@ Esempio config:
 			"weight": 3
 		},
 		{
-			"name": "Batch giornaliero",
+			"name": "Daily batch",
 			"file": "./dist/jobs/daily.js",
 			"weight": 1
 		}
@@ -63,72 +63,72 @@ Esempio config:
 }
 ```
 
-#### Sviluppo locale della CLI (per contributor)
+#### Local CLI development (for contributors)
 
-Assicurati di aver clonato lo split-repo e di trovarti nella cartella `cli`.
+Make sure you've cloned the split-repo and are inside the `cli` folder.
 
-1. Installa i pacchetti per la CLI:
+1. Install the CLI packages:
 ```bash
 cd cli
 npm install
 ```
 
-2. Collega il comando `ecocode` globalmente sul tuo terminale locale per sviluppo:
+2. Link the `ecocode` command globally on your local terminal for development:
 ```bash
 npm link
 ```
-*(Da questo momento in poi puoi lanciare `ecocode` in qualunque cartella del tuo PC)*
+*(From now on you can run `ecocode` in any folder on your machine)*
 
-3. Analizza una cartella sorgente locale:
-Vai nel tuo progetto fiammante e scrivi:
+3. Analyze a local source folder:
+Go into your shiny project and type:
 ```bash
 ecocode analyze
 ```
 
-#### Publish npm (maintainer)
+#### npm publish (maintainer)
 
-Per rendere disponibile la CLI a tutti via `npx ecocode@latest analyze`:
+To make the CLI available to everyone via `npx ecocode@latest analyze`:
 
-1. Crea il secret `NPM_TOKEN` su GitHub (Settings > Secrets and variables > Actions).
-2. Incrementa la versione in `cli/package.json` (es. `npm version patch` dentro `cli`).
-3. Crea e pusha un tag release:
+1. Create the `NPM_TOKEN` secret on GitHub (Settings > Secrets and variables > Actions).
+2. Bump the version in `cli/package.json` (e.g. `npm version patch` inside `cli`).
+3. Create and push a release tag:
 
 ```bash
 git tag ecocode-v1.0.1
 git push origin ecocode-v1.0.1
 ```
 
-Il workflow `.github/workflows/publish-cli.yml` pubblichera automaticamente su npm.
+The `.github/workflows/publish-cli.yml` workflow will automatically publish to npm.
 
-#### Cosa fa la CLI in background?
-- Scansiona JS/TS/React e calcola l'Energy Score al 100% in locale tramite parsing AST.
-- Rileva inefficienze (Frontend Bloat, Inefficienza DB, Spreco AI) direttamente sul PC dell'utente.
-- Invia al backend solo metadati del report (punteggi, filename, linea, categoria) per la dashboard visiva.
-- Nessuna riga di codice sorgente viene inviata al server.
+#### What does the CLI do under the hood?
+- Scans JS/TS/React and computes the Energy Score 100% locally via AST parsing.
+- Detects inefficiencies (Frontend Bloat, DB Inefficiency, AI Waste) directly on the user's machine.
+- Sends only report metadata (scores, filename, line, category) to the backend for the visual dashboard.
+- No line of source code is sent to the server.
 
-#### Eco-Fix (Web + locale)
-- Nella Web App pubblica non viene richiesto agli utenti di inserire API key personali.
-- Il pulsante Eco-Fix usa il motore AI server-side (NVIDIA NIM), configurato con `NVIDIA_API_KEY`.
-- Se self-hosti in locale, imposta la stessa variabile in `.env.local` e avvia l'app.
-- Per privacy, il report locale salva solo metadati: quando apri Eco-Fix incolli manualmente il blocco di codice da ottimizzare.
+#### Eco-Fix (Web + local)
+- On the public Web App users are not asked to enter personal API keys.
+- The Eco-Fix button uses the server-side AI engine (NVIDIA NIM), configured with `NVIDIA_API_KEY`.
+- If you self-host locally, set the same variable in `.env.local` and start the app.
+- For privacy, the local report stores only metadata: when you open Eco-Fix you manually paste the code block to optimize.
 
-### 3. 🧩 Estensione VS Code (Programmazione in tempo reale)
-Vuoi mantenere Energy Score alto (Classe A) mentre scrivi codice, senza cambiare flusso?
-Con l'estensione VS Code di GreenCode hai lint energetico in tempo reale, hover con spiegazioni chiare e Quick Fix AI direttamente dalla lampadina dell'editor.
+### 3. 🧩 VS Code Extension (real-time coding)
+Want to keep a high Energy Score (Class A) while you code, without changing your flow?
+With the GreenCode VS Code extension you get real-time energy linting, hover explanations and AI Quick Fixes right from the editor lightbulb.
 
-Per l'Eco-Fix AI, l'estensione legge in automatico la chiave dal file `.env` della cartella aperta:
+For the AI Eco-Fix, the extension automatically reads the key from the `.env` file of the open folder:
 - `OPENAI_API_KEY`
 - `GEMINI_API_KEY`
 
-Se la chiave non e presente, riceverai una notifica gentile con link rapido per crearla.
+If the key is missing, you'll get a gentle notification with a quick link to create one.
 
 Marketplace: https://marketplace.visualstudio.com/items?itemName=klith.ecocode-energy-lint-klith
 
 --- 
 
-## Sviluppo Interno
+## Internal Development
 
-1. Assicurati di impostare le variabili di ambiente in `.env.local`: `NEXT_PUBLIC_SUPABASE_URL` + chiave Supabase, e `NVIDIA_API_KEY` (motore AI NVIDIA NIM) se lavori alla parte Web.
-2. Esegui il dump `schema.sql` all'interno del progetto editor Supabase. In questo modo attivi la memorizzazione dei report `local_reports` e le RLS aperte per il CLI.
+1. Make sure to set the environment variables in `.env.local`: `NEXT_PUBLIC_SUPABASE_URL` + Supabase key, and `NVIDIA_API_KEY` (NVIDIA NIM AI engine) if you work on the Web part.
+2. Run the `schema.sql` dump inside the Supabase editor project. This enables storing `local_reports` and the open RLS for the CLI.
 
 © 2026 GreenCode. Made with 💚.

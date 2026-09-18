@@ -1,48 +1,48 @@
-# GreenCode — Guida alla Demo (2 minuti)
+# GreenCode - Demo Guide (2 minutes)
 
-Obiettivo: far vedere in 2 minuti che GreenCode **misura** l'impatto energetico del codice, lo classifica **A–G**, e lo **corregge con l'AI NVIDIA**.
+Goal: show in 2 minutes that GreenCode **measures** the energy impact of code, grades it **A-G**, and **fixes it with NVIDIA AI**.
 
-## Prima di registrare/presentare
+## Before recording/presenting
 
-1. Avvia l'app (Docker):
+1. Start the app (Docker):
    ```
-   docker start gc-web      # oppure il comando run in HACKATHON.md la prima volta
+   docker start gc-web      # or the run command in HACKATHON.md the first time
    ```
-   Apri **http://localhost:4321** e aspetta che la home carichi (primo accesso ~30s).
-2. **Pre-riscalda la cache** (fondamentale — rende la demo istantanea):
+   Open **http://localhost:4321** and wait for the home to load (first access ~30s).
+2. **Warm up the cache** (essential - makes the demo instant):
    ```
    bash scripts/warm-demo.sh
    ```
-   Aspetta che finisca (~2-4 min una volta sola). Dopo, i repo della demo si aprono in un istante.
+   Wait for it to finish (~2-4 min, once). After that, the demo repos open instantly.
 
-## Repo della demo (contrasto A → C → G)
+## Demo repos (A -> C -> G contrast)
 
-| Repo | Classe attesa | Cosa mostra |
+| Repo | Expected class | What it shows |
 |---|---|---|
-| `sindresorhus/is-plain-obj` | **A** | codice pulito → verde, "ottimo lavoro" |
-| `ThoKlith/GreenCode` | **C** | trova sprechi reali (batch-loop sequenziale) |
-| `felixge/node-memory-leak-tutorial` | **G** | becca la **fuga di memoria** critica |
+| `sindresorhus/is-plain-obj` | **A** | clean code -> green, "great job" |
+| `ThoKlith/GreenCode` | **C** | finds real inefficiencies (sequential batch-loop) |
+| `felixge/node-memory-leak-tutorial` | **G** | catches the critical **memory leak** |
 
-## Copione (2 min)
+## Script (2 min)
 
-**0:00 — L'aggancio (15s)**
-> "Ogni tool 'green' chiede a un'AI di *indovinare* quanto consuma il tuo codice. GreenCode invece lo **misura** — conta i cicli CPU reali, li converte in energia e CO₂ — e ti dà una **classe energetica A–G**, come un elettrodomestico."
+**0:00 - The hook (15s)**
+> "Every 'green' tool just asks an AI to *guess* how much your code consumes. GreenCode **measures** it instead - it counts real CPU cycles, converts them to energy and CO2 - and gives you an **A-G energy class**, like an appliance."
 
-**0:15 — Codice pulito → A (20s)**
-Incolla `is-plain-obj`. Mostra il badge **A** verde, "nessuna vulnerabilità: ottimo lavoro".
-> "Codice pulito: classe A."
+**0:15 - Clean code -> A (20s)**
+Paste `is-plain-obj`. Show the green **A** badge, "no inefficiencies: great job".
+> "Clean code: class A."
 
-**0:35 — Codice pessimo → G (35s)**
-Incolla `node-memory-leak-tutorial`. Mostra il badge **G** rosso e il finding.
-> "Questo invece è pieno di sprechi — classe G. E guarda: GreenCode ha individuato la **fuga di memoria** esatta, con il codice incriminato."
+**0:35 - Bad code -> G (35s)**
+Paste `node-memory-leak-tutorial`. Show the red **G** badge and the finding.
+> "This one is full of waste - class G. And look: GreenCode spotted the exact **memory leak**, with the offending code."
 
-**1:10 — Il colpo: Eco-Fix con AI (35s)**
-Clicca **"Ottimizza con AI"** su un finding. Mostra il codice riscritto.
-> "Un click, e un modello **NVIDIA Nemotron/Gemma** riscrive il codice ottimizzato, preservando il comportamento."
+**1:10 - The punch: AI Eco-Fix (35s)**
+Click **"Optimize with AI"** on a finding. Show the rewritten code.
+> "One click, and an **NVIDIA Nemotron/Gemma** model rewrites the optimized code, preserving behavior."
 
-**1:45 — Chiusura (15s)**
-Apri la pagina **Methodology**. Mostra la formula trasparente.
-> "Tutto trasparente: la formula CPU→energia→CO₂ è pubblica. Web app, CLI e estensione VS Code. GreenCode: misura, non indovina."
+**1:45 - Closing (15s)**
+Open the **Methodology** page. Show the transparent formula.
+> "All transparent: the CPU->energy->CO2 formula is public. Web app, CLI and VS Code extension. GreenCode: it measures, it doesn't guess."
 
-## Nota di onestà (se un giudice chiede)
-La **CLI** esegue e misura davvero il codice in locale (privacy). La **web app**, dove non si può eseguire codice arbitrario in sicurezza, usa un modello NVIDIA che **stima** la classe fondandosi su segnali di complessità reali. Due modalità, una filosofia: trasparenza.
+## Honesty note (if a judge asks)
+The **CLI** actually runs and measures the code locally (privacy). The **web app**, where arbitrary code can't be safely executed, uses an NVIDIA model that **estimates** the class grounded on real complexity signals. Two modes, one philosophy: transparency.
