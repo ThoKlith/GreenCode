@@ -17,7 +17,7 @@ type TreeResponse = {
 async function fetchGithubFiles(repoOwner: string, repoName: string, token?: string) {
   const headers: Record<string, string> = {
     'Accept': 'application/vnd.github.v3+json',
-    'User-Agent': 'EcoCode-App'
+    'User-Agent': 'GreenCode-App'
   };
   if (token) {
     headers['Authorization'] = `token ${token}`;

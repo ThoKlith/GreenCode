@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EcoCode | L'impatto ecologico del tuo codice",
+  title: "GreenCode | L'impatto ecologico del tuo codice",
   description: "Analizza e ottimizza l'ecosostenibilità delle tue repository GitHub.",
 };
 

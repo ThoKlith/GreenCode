@@ -11,7 +11,7 @@ export function Navbar() {
         <Link href="/" className="flex items-center space-x-2">
           <Leaf className="h-6 w-6 text-primary drop-shadow-[0_0_8px_rgba(20,250,150,0.8)]" />
           <span className="hidden font-bold sm:inline-block text-xl tracking-tight text-white drop-shadow-md">
-            EcoCode
+            GreenCode
           </span>
         </Link>
         <nav className="hidden md:flex items-center gap-5 ml-8 text-sm text-muted-foreground">

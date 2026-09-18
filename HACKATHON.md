@@ -1,12 +1,12 @@
-# EcoCode — Overview del progetto
+# GreenCode — Overview del progetto
 
 > **Il primo tool che *misura* l'impronta energetica del tuo codice invece di *indovinarla* — e la corregge con un agente AI su modelli NVIDIA.**
 
-La maggior parte dei tool "green" chiede a un LLM di stimare a occhio un punteggio. EcoCode è diverso: **esegue il codice, conta i cicli CPU reali**, li converte in energia (mWh) e CO₂ (gCO₂e) con una formula fisica trasparente, e poi passa quei **numeri misurati** a un modello NVIDIA che propone ottimizzazioni concrete — restituite come **etichetta energetica A–G**, come un elettrodomestico.
+La maggior parte dei tool "green" chiede a un LLM di stimare a occhio un punteggio. GreenCode è diverso: **esegue il codice, conta i cicli CPU reali**, li converte in energia (mWh) e CO₂ (gCO₂e) con una formula fisica trasparente, e poi passa quei **numeri misurati** a un modello NVIDIA che propone ottimizzazioni concrete — restituite come **etichetta energetica A–G**, come un elettrodomestico.
 
 ## L'innovazione: fondato sulla misura, non sull'ipotesi
 
-| | EcoCode |
+| | GreenCode |
 |---|---|
 | **Misura** | Profiling dinamico reale (CLI): esegue il codice, misura CPU → mWh → gCO₂e (formula pubblica nella pagina Methodology) |
 | **Ragiona** | Un modello NVIDIA riceve il profilo *misurato* + il sorgente e restituisce ottimizzazioni specifiche, riga per riga |

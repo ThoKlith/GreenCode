@@ -2,8 +2,8 @@ import { Navbar } from "@/components/Navbar";
 import { Cpu, FlaskConical, Leaf, Sigma } from "lucide-react";
 
 export const metadata = {
-  title: "Methodology | EcoCode",
-  description: "Approccio statico e dinamico di EcoCode per stimare efficienza energetica e impatto carbonico del software.",
+  title: "Methodology | GreenCode",
+  description: "Approccio statico e dinamico di GreenCode per stimare efficienza energetica e impatto carbonico del software.",
 };
 
 export default function MethodologyPage() {
@@ -22,10 +22,10 @@ export default function MethodologyPage() {
           Metodo Scientifico
         </div>
         <h1 className="mt-5 text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
-          Metodo EcoCode: trasparenza prima di tutto.
+          Metodo GreenCode: trasparenza prima di tutto.
         </h1>
         <p className="mt-5 max-w-3xl text-muted-foreground text-base md:text-lg leading-relaxed">
-          EcoCode non inventa voti. Traduce pattern computazionali in metriche verificabili,
+          GreenCode non inventa voti. Traduce pattern computazionali in metriche verificabili,
           combinando scoring statico e profilazione dinamica per stimare impatto energetico e carbonico.
         </p>
       </section>
@@ -118,7 +118,7 @@ CO2_g = (Energia_mWh / 1_000_000) * Carbon_Intensity_gCO2e_per_kWh`}
 }`}
             </pre>
             <p className="mt-3 text-sm text-muted-foreground">
-              In questo modo EcoCode combina l&apos;analisi statica globale con benchmark dinamici di flussi reali,
+              In questo modo GreenCode combina l&apos;analisi statica globale con benchmark dinamici di flussi reali,
               riducendo il rischio di metriche scollegate dalla produzione.
             </p>
           </div>
@@ -143,7 +143,7 @@ CO2_g = (Energia_mWh / 1_000_000) * Carbon_Intensity_gCO2e_per_kWh`}
           </div>
 
           <div className="mt-6 rounded-2xl border border-border/60 bg-background/45 p-4">
-            <h3 className="font-semibold">Copertura funzionale EcoCode</h3>
+            <h3 className="font-semibold">Copertura funzionale GreenCode</h3>
             <ul className="mt-3 space-y-2 text-sm text-muted-foreground list-disc pl-4">
               <li><strong className="text-foreground">Analisi statica:</strong> rileva anti-pattern energetici e genera Energy Score A-G.</li>
               <li><strong className="text-foreground">Profilazione file:</strong> misura consumo CPU reale su uno script/entrypoint.</li>

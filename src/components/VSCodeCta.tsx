@@ -11,7 +11,7 @@ export function VSCodeCta() {
           </div>
           <h3 className="text-xl md:text-2xl font-bold mb-2">Mantieni la Classe A mentre scrivi</h3>
           <p className="text-muted-foreground text-sm max-w-2xl">
-            Installa l&apos;estensione VS Code di EcoCode: evidenzia sprechi energetici in diretta e applica Eco-Fix AI dalla lampadina, senza aspettare il report finale.
+            Installa l&apos;estensione VS Code di GreenCode: evidenzia sprechi energetici in diretta e applica Eco-Fix AI dalla lampadina, senza aspettare il report finale.
           </p>
         </div>
 

@@ -26,11 +26,11 @@ export function RealtimeSection() {
           Programma in Tempo Reale
         </div>
         <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
-          EcoCode ora vive
+          GreenCode ora vive
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-[#4ADE80] to-[#2DD4BF]"> dentro VS Code</span>
         </h2>
         <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
-          Non aspettare di aver finito. EcoCode ti assiste mentre scrivi, evidenziando gli sprechi energetici come un correttore ortografico.
+          Non aspettare di aver finito. GreenCode ti assiste mentre scrivi, evidenziando gli sprechi energetici come un correttore ortografico.
           Ottimizza il tuo codice prima ancora di salvarlo.
         </p>
       </motion.div>
@@ -69,7 +69,7 @@ export function RealtimeSection() {
                 transition={{ delay: 0.55, duration: 0.35 }}
                 className="absolute right-4 top-24 w-[260px] rounded-xl border border-emerald-400/30 bg-[oklch(0.16_0.02_160)]/95 p-3 shadow-xl"
               >
-                <p className="text-emerald-300 text-xs font-semibold mb-1">EcoCode Insight</p>
+                <p className="text-emerald-300 text-xs font-semibold mb-1">GreenCode Insight</p>
                 <p className="text-white/80 text-xs leading-relaxed">
                   Questo loop puo rallentare il server e consumare batteria inutile. Vuoi applicare una Eco-Fix automatica?
                 </p>
@@ -103,7 +103,7 @@ export function RealtimeSection() {
               <div>
                 <h3 className="font-semibold text-lg">Quick Fix con AI</h3>
                 <p className="text-muted-foreground text-sm mt-1">
-                  Un click sulla lampadina e EcoCode propone un refactoring energeticamente migliore, rispettando il tuo contesto locale.
+                  Un click sulla lampadina e GreenCode propone un refactoring energeticamente migliore, rispettando il tuo contesto locale.
                 </p>
               </div>
             </div>

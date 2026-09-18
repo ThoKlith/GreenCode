@@ -29,7 +29,7 @@ export async function GET() {
       {
         headers: {
           'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'EcoCode-App',
+          'User-Agent': 'GreenCode-App',
         },
         next: { revalidate: 300 }, // cache for 5 min
       }

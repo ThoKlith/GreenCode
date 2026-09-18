@@ -1,6 +1,6 @@
-# EcoCode — Guida alla Demo (2 minuti)
+# GreenCode — Guida alla Demo (2 minuti)
 
-Obiettivo: far vedere in 2 minuti che EcoCode **misura** l'impatto energetico del codice, lo classifica **A–G**, e lo **corregge con l'AI NVIDIA**.
+Obiettivo: far vedere in 2 minuti che GreenCode **misura** l'impatto energetico del codice, lo classifica **A–G**, e lo **corregge con l'AI NVIDIA**.
 
 ## Prima di registrare/presentare
 
@@ -26,7 +26,7 @@ Obiettivo: far vedere in 2 minuti che EcoCode **misura** l'impatto energetico de
 ## Copione (2 min)
 
 **0:00 — L'aggancio (15s)**
-> "Ogni tool 'green' chiede a un'AI di *indovinare* quanto consuma il tuo codice. EcoCode invece lo **misura** — conta i cicli CPU reali, li converte in energia e CO₂ — e ti dà una **classe energetica A–G**, come un elettrodomestico."
+> "Ogni tool 'green' chiede a un'AI di *indovinare* quanto consuma il tuo codice. GreenCode invece lo **misura** — conta i cicli CPU reali, li converte in energia e CO₂ — e ti dà una **classe energetica A–G**, come un elettrodomestico."
 
 **0:15 — Codice pulito → A (20s)**
 Incolla `is-plain-obj`. Mostra il badge **A** verde, "nessuna vulnerabilità: ottimo lavoro".
@@ -34,7 +34,7 @@ Incolla `is-plain-obj`. Mostra il badge **A** verde, "nessuna vulnerabilità: ot
 
 **0:35 — Codice pessimo → G (35s)**
 Incolla `node-memory-leak-tutorial`. Mostra il badge **G** rosso e il finding.
-> "Questo invece è pieno di sprechi — classe G. E guarda: EcoCode ha individuato la **fuga di memoria** esatta, con il codice incriminato."
+> "Questo invece è pieno di sprechi — classe G. E guarda: GreenCode ha individuato la **fuga di memoria** esatta, con il codice incriminato."
 
 **1:10 — Il colpo: Eco-Fix con AI (35s)**
 Clicca **"Ottimizza con AI"** su un finding. Mostra il codice riscritto.
@@ -42,7 +42,7 @@ Clicca **"Ottimizza con AI"** su un finding. Mostra il codice riscritto.
 
 **1:45 — Chiusura (15s)**
 Apri la pagina **Methodology**. Mostra la formula trasparente.
-> "Tutto trasparente: la formula CPU→energia→CO₂ è pubblica. Web app, CLI e estensione VS Code. EcoCode: misura, non indovina."
+> "Tutto trasparente: la formula CPU→energia→CO₂ è pubblica. Web app, CLI e estensione VS Code. GreenCode: misura, non indovina."
 
 ## Nota di onestà (se un giudice chiede)
 La **CLI** esegue e misura davvero il codice in locale (privacy). La **web app**, dove non si può eseguire codice arbitrario in sicurezza, usa un modello NVIDIA che **stima** la classe fondandosi su segnali di complessità reali. Due modalità, una filosofia: trasparenza.

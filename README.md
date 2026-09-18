@@ -1,17 +1,17 @@
-# 🌱 EcoCode - Intelligent Code Sustainability
+# 🌱 GreenCode - Intelligent Code Sustainability
 
-EcoCode è un ecosistema composto da Web App, CLI e Estensione VS Code per analizzare automaticamente la sostenibilità, le performance energetiche e l'impatto di un progetto software. Identifica i colli di bottiglia energetici, ottimizza le query ed evidenzia componenti UI lenti che fanno sprecare batteria ai dispositivi dei tuoi utenti.
+GreenCode è un ecosistema composto da Web App, CLI e Estensione VS Code per analizzare automaticamente la sostenibilità, le performance energetiche e l'impatto di un progetto software. Identifica i colli di bottiglia energetici, ottimizza le query ed evidenzia componenti UI lenti che fanno sprecare batteria ai dispositivi dei tuoi utenti.
 
 ## Modalità d'uso
 
-Hai tre modi (estremamente fighi) per usare EcoCode a seconda delle tue esigenze:
+Hai tre modi (estremamente fighi) per usare GreenCode a seconda delle tue esigenze:
 
 ### 1. 🌐 Web App (Per Repo Pubbliche)
 Hai un repository GitHub pubblico? Apri la pagina della Web App, inserisci l'URL del tuo progetto GitHub, e lascia che il nostro motore di analisi cloud calcoli l'Energy Score e ti offra consigli di refactoring visivi direttamente nella nostra dashboard premium.
 
 ### 2. 💻 CLI Locale (Per Repo Private)
 Stai lavorando su codice aziendale off-limits per il web o repo privati?
-Puoi usare la nostra **EcoCode CLI** Node.js. Il calcolo avviene in locale tramite analisi statica AST: il codice non viene inviato al backend.
+Puoi usare la nostra **GreenCode CLI** Node.js. Il calcolo avviene in locale tramite analisi statica AST: il codice non viene inviato al backend.
 
 #### Installazione Utente Finale (consigliata)
 
@@ -114,7 +114,7 @@ Il workflow `.github/workflows/publish-cli.yml` pubblichera automaticamente su n
 
 ### 3. 🧩 Estensione VS Code (Programmazione in tempo reale)
 Vuoi mantenere Energy Score alto (Classe A) mentre scrivi codice, senza cambiare flusso?
-Con l'estensione VS Code di EcoCode hai lint energetico in tempo reale, hover con spiegazioni chiare e Quick Fix AI direttamente dalla lampadina dell'editor.
+Con l'estensione VS Code di GreenCode hai lint energetico in tempo reale, hover con spiegazioni chiare e Quick Fix AI direttamente dalla lampadina dell'editor.
 
 Per l'Eco-Fix AI, l'estensione legge in automatico la chiave dal file `.env` della cartella aperta:
 - `OPENAI_API_KEY`
@@ -131,4 +131,4 @@ Marketplace: https://marketplace.visualstudio.com/items?itemName=klith.ecocode-e
 1. Assicurati di impostare le variabili di ambiente in `.env.local`: `NEXT_PUBLIC_SUPABASE_URL` + chiave Supabase, e `NVIDIA_API_KEY` (motore AI NVIDIA NIM) se lavori alla parte Web.
 2. Esegui il dump `schema.sql` all'interno del progetto editor Supabase. In questo modo attivi la memorizzazione dei report `local_reports` e le RLS aperte per il CLI.
 
-© 2026 EcoCode. Made with 💚.
+© 2026 GreenCode. Made with 💚.
