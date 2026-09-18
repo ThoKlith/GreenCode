@@ -194,7 +194,7 @@ function analyzeAstFile(filePath, content) {
           file: relativeFile,
           sourceFile,
           node,
-          description: 'Inefficienza DB: query con SELECT * non ottimizzata.'
+          description: 'DB inefficiency: unoptimized SELECT * query.'
         });
       }
 
@@ -234,7 +234,7 @@ function analyzeAstFile(filePath, content) {
           file: relativeFile,
           sourceFile,
           node,
-          description: 'Spreco AI: temperatura alta aumenta token inutili e variabilita di output.'
+          description: 'AI waste: high temperature increases useless tokens and output variability.'
         });
       }
 
@@ -349,7 +349,7 @@ function parsePositiveInteger(raw, fallback) {
 function loadProjectProfileConfig(configPath) {
   const resolvedPath = path.resolve(process.cwd(), configPath || DEFAULT_PROJECT_PROFILE_CONFIG);
   if (!fs.existsSync(resolvedPath)) {
-    throw new Error(`Config non trovata: ${resolvedPath}. Crea un file ${DEFAULT_PROJECT_PROFILE_CONFIG} nella root del progetto.`);
+    throw new Error(`Config not found: ${resolvedPath}. Create a ${DEFAULT_PROJECT_PROFILE_CONFIG} file in the project root.`);
   }
 
   let parsed;
@@ -357,16 +357,16 @@ function loadProjectProfileConfig(configPath) {
     const raw = fs.readFileSync(resolvedPath, 'utf-8');
     parsed = JSON.parse(raw);
   } catch {
-    throw new Error(`Impossibile leggere/parsing della config: ${resolvedPath}`);
+    throw new Error(`Unable to read/parse the config: ${resolvedPath}`);
   }
 
   if (!parsed || !Array.isArray(parsed.scenarios) || parsed.scenarios.length === 0) {
-    throw new Error('La config deve contenere un array scenarios non vuoto.');
+    throw new Error('The config must contain a non-empty scenarios array.');
   }
 
   const scenarios = parsed.scenarios.map((scenario, index) => {
     if (!scenario || typeof scenario.file !== 'string' || !scenario.file.trim()) {
-      throw new Error(`Scenario #${index + 1} non valido: campo file mancante.`);
+      throw new Error(`Scenario #${index + 1} invalid: missing file field.`);
     }
 
     const weight = Number.isFinite(Number(scenario.weight)) && Number(scenario.weight) > 0
@@ -448,17 +448,17 @@ function averageFromRuns(runs) {
 async function executeFileForProfiling(targetFilePath) {
   const absolutePath = path.resolve(process.cwd(), targetFilePath);
   if (!fs.existsSync(absolutePath)) {
-    throw new Error(`File non trovato: ${targetFilePath}`);
+    throw new Error(`File not found: ${targetFilePath}`);
   }
 
   const fileStat = fs.statSync(absolutePath);
   if (!fileStat.isFile()) {
-    throw new Error(`Il percorso non punta a un file: ${targetFilePath}`);
+    throw new Error(`The path does not point to a file: ${targetFilePath}`);
   }
 
   const extension = path.extname(absolutePath).toLowerCase();
   if (!PROFILE_EXECUTABLE_EXTENSIONS.has(extension)) {
-    throw new Error(`Estensione non supportata per profile (${extension || 'nessuna'}). Usa file .js, .mjs o .cjs.`);
+    throw new Error(`Unsupported extension for profile (${extension || 'none'}). Use .js, .mjs or .cjs files.`);
   }
 
   const fileUrl = `${pathToFileURL(absolutePath).href}?ecocodeProfileTs=${Date.now()}`;
@@ -467,37 +467,37 @@ async function executeFileForProfiling(targetFilePath) {
 
 program
   .name('ecocode')
-  .description("Analisi locale di sostenibilità energetica del codice sorgente")
+  .description("Local energy-sustainability analysis of source code")
   .version('1.3.0');
 
 program
   .command('analyze')
-  .description('Analizza la cartella corrente in locale (AST) e invia solo metadati')
-  .option('-h, --host <url>', 'URL della Web App EcoCode', process.env.ECOCODE_HOST || 'https://green-code-swart.vercel.app')
-  .option('-m, --max-files <n>', 'Numero massimo di file da analizzare', '80')
+  .description('Analyze the current folder locally (AST) and send only metadata')
+  .option('-h, --host <url>', 'GreenCode Web App URL', process.env.ECOCODE_HOST || 'https://green-code-swart.vercel.app')
+  .option('-m, --max-files <n>', 'Maximum number of files to analyze', '80')
   .action(async (options) => {
     const maxFiles = parseInt(options.max_files || options.maxFiles, 10) || 80;
 
-    console.log(chalk.green.bold('\n🌱 EcoCode CLI - Analisi Reale del Codice Sorgente\n'));
+    console.log(chalk.green.bold('\n🌱 GreenCode CLI - Real Source Code Analysis\n'));
 
-    const spinner = ora('Scansione ricorsiva dei file sorgenti locali...').start();
+    const spinner = ora('Recursively scanning local source files...').start();
 
     const cwd = process.cwd();
     const projectName = path.basename(cwd);
     const allFiles = walkDir(cwd);
 
-    spinner.succeed(`Trovati ${chalk.cyan(allFiles.length)} file sorgenti nel progetto ${chalk.bold(projectName)}`);
+    spinner.succeed(`Found ${chalk.cyan(allFiles.length)} source files in the project ${chalk.bold(projectName)}`);
 
     if (allFiles.length === 0) {
-      console.log(chalk.red('\n❌ Nessun file sorgente trovato nella cartella corrente.'));
-      console.log(chalk.gray('Assicurati di lanciare il comando nella root del tuo progetto.\n'));
+      console.log(chalk.red('\n❌ No source file found in the current folder.'));
+      console.log(chalk.gray('Make sure to run the command in your project root.\n'));
       process.exit(1);
     }
 
     // Seleziona i file da analizzare (i primi N)
     const selectedFiles = allFiles.slice(0, maxFiles);
 
-    spinner.start(`Analisi AST locale su ${selectedFiles.length} file...`);
+    spinner.start(`Local AST analysis on ${selectedFiles.length} files...`);
 
     const findings = [];
     const counters = { frontend: 0, db: 0, ai: 0 };
@@ -520,9 +520,9 @@ program
     const uniqueFindings = dedupeFindings(findings);
     const reportPayload = computeReport(projectName, uniqueFindings, counters);
 
-    spinner.succeed(`Analisi locale completata: ${chalk.cyan(reportPayload.snippets.length)} inefficienze trovate`);
+    spinner.succeed(`Local analysis completed: ${chalk.cyan(reportPayload.snippets.length)} inefficiencies found`);
 
-    spinner.start('Invio al server EcoCode (solo metadati del report)...');
+    spinner.start('Sending to the GreenCode server (report metadata only)...');
 
     try {
       const host = String(options.host || '').replace(/\/+$/, '');
@@ -538,59 +538,59 @@ program
       if (!contentType.includes('application/json')) {
         const raw = await response.text();
         const preview = raw.slice(0, 120).replace(/\s+/g, ' ');
-        throw new Error(`Risposta non JSON da ${endpoint} (status ${response.status}). Anteprima: ${preview}`);
+        throw new Error(`Non-JSON response from ${endpoint} (status ${response.status}). Preview: ${preview}`);
       }
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Errore durante l'invio del report.");
+        throw new Error(data.error || "Error while sending the report.");
       }
 
-      spinner.succeed(chalk.green('Analisi locale completata e report salvato!\n'));
+      spinner.succeed(chalk.green('Local analysis completed and report saved!\n'));
 
       // Stampa riepilogo
       console.log(chalk.bold('┌──────────────────────────────────────────┐'));
-      console.log(chalk.bold('│        📊 RISULTATI ANALISI REALE        │'));
+      console.log(chalk.bold('│           📊 REAL ANALYSIS RESULTS       │'));
       console.log(chalk.bold('├──────────────────────────────────────────┤'));
 
       const classColor = ['A', 'B'].includes(reportPayload.energy_class) ? chalk.green : ['C', 'D'].includes(reportPayload.energy_class) ? chalk.yellow : chalk.red;
-      console.log(`  Classe Energetica:     ${classColor.bold(reportPayload.energy_class)}`);
-      console.log(`  CO2 Stimata:           ${chalk.white(reportPayload.co2_estimate)} kg/anno`);
-      console.log(`  Efficienza Codice:     ${chalk.cyan(reportPayload.efficiency_score)}/100`);
+      console.log(`  Class Energetica:     ${classColor.bold(reportPayload.energy_class)}`);
+      console.log(`  Estimated CO2:           ${chalk.white(reportPayload.co2_estimate)} kg/anno`);
+      console.log(`  Code Efficiency:       ${chalk.cyan(reportPayload.efficiency_score)}/100`);
       console.log(`  Ottimizzazione AI:     ${chalk.cyan(reportPayload.ai_optimization_score)}/100`);
-      console.log(`  Vulnerabilità trovate: ${chalk.yellow(reportPayload.snippets.length)}`);
+      console.log(`  Inefficiencies found:  ${chalk.yellow(reportPayload.snippets.length)}`);
 
       console.log(chalk.bold('└──────────────────────────────────────────┘'));
 
       console.log('\n' + chalk.bold('🌍 Report completo con soluzioni AI:'));
       console.log(chalk.blueBright.underline.bold(`   ${data.url}`));
-      console.log(chalk.gray('\n   Apri il link nel browser per visualizzare la dashboard.\n'));
+      console.log(chalk.gray('\n   Open the link in the browser to view the dashboard.\n'));
 
     } catch (error) {
-      spinner.fail(chalk.red('Analisi fallita.'));
-      console.error(chalk.red(`\n❌ Errore: ${error.message}`));
-      console.log(chalk.gray(`\nVerifica che:`));
+      spinner.fail(chalk.red('Analysis failed.'));
+      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+      console.log(chalk.gray(`\nCheck that:`));
       console.log(chalk.gray(`  1. L'endpoint API sia raggiungibile su ${options.host}`));
-      console.log(chalk.gray(`     Suggerimento: ecocode analyze --host https://green-code-swart.vercel.app`));
-      console.log(chalk.gray(`  2. La tabella 'local_reports' esista nel database Supabase`));
-      console.log(chalk.gray(`  3. Le variabili server (OPENROUTER_API_KEY/GEMINI_API_KEY) siano configurate in deploy\n`));
+      console.log(chalk.gray(`     Tip: ecocode analyze --host https://green-code-swart.vercel.app`));
+      console.log(chalk.gray(`  2. The 'local_reports' table exists in the Supabase database`));
+      console.log(chalk.gray(`  3. The server variables (NVIDIA_API_KEY) are configured in the deployment\n`));
     }
   });
 
 program
   .command('profile <file>')
-  .description('Esegue un file locale e misura CPU user/system per stimare energia (mWh) e CO2')
-  .option('-c, --config <path>', 'File config per profile project', DEFAULT_PROJECT_PROFILE_CONFIG)
-  .option('-r, --repeat <n>', 'Numero di run per scenario in profile project', '3')
+  .description('Runs a local file and measures user/system CPU to estimate energy (mWh) and CO2')
+  .option('-c, --config <path>', 'Config file for profile project', DEFAULT_PROJECT_PROFILE_CONFIG)
+  .option('-r, --repeat <n>', 'Number of runs per scenario in profile project', '3')
   .action(async (file, options) => {
-    console.log(chalk.yellow.bold("\n⚠ Attenzione: il comando profile esegue il codice localmente. Assicurati di profilare solo file sicuri.\n"));
+    console.log(chalk.yellow.bold("\n⚠ Warning: the profile command runs the code locally. Make sure to profile only safe files.\n"));
 
     try {
       if (file === 'project') {
         const configData = loadProjectProfileConfig(options.config || DEFAULT_PROJECT_PROFILE_CONFIG);
         const cliRepeat = parsePositiveInteger(options.repeat, configData.repeat);
-        const spinner = ora('Profilazione dinamica progetto in corso...').start();
+        const spinner = ora('Dynamic project profiling in progress...').start();
 
         const scenarioSummaries = [];
 
@@ -619,57 +619,57 @@ program
           return acc;
         }, { totalCpuMs: 0, estimatedEnergyMWh: 0, estimatedEnergyJ: 0, estimatedCo2g: 0 });
 
-        spinner.succeed(chalk.green('Profilazione progetto completata.'));
+        spinner.succeed(chalk.green('Project profiling completed.'));
 
         console.log(chalk.bold('\n┌────────────────────────────────────────────────────────────┐'));
-        console.log(chalk.bold('│            ⚙ PROFILAZIONE DINAMICA PROGETTO               │'));
+        console.log(chalk.bold('│              ⚙ DYNAMIC PROJECT PROFILING                 │'));
         console.log(chalk.bold('├────────────────────────────────────────────────────────────┤'));
         console.log(`  Config:                 ${chalk.cyan(configData.configPath)}`);
         console.log(`  Scenari:                ${chalk.white(String(scenarioSummaries.length))}`);
-        console.log(`  Run per scenario:       ${chalk.white(String(cliRepeat))}`);
+        console.log(`  Runs per scenario:      ${chalk.white(String(cliRepeat))}`);
         console.log(chalk.bold('├────────────────────────────────────────────────────────────┤'));
 
         for (const scenario of scenarioSummaries) {
           console.log(`  ${chalk.bold(scenario.name)} ${chalk.gray(`(weight ${scenario.weight})`)}`);
           console.log(`    File:                 ${chalk.cyan(scenario.file)}`);
-          console.log(`    CPU medio:            ${chalk.white(formatMs(scenario.avg.totalCpuMs))}`);
-          console.log(`    Energia media:        ${chalk.green(`${scenario.avg.estimatedEnergyMWh.toFixed(4)} mWh`)}`);
-          console.log(`    CO2 media:            ${chalk.yellow(`${scenario.avg.estimatedCo2g.toExponential(3)} gCO2e`)}`);
+          console.log(`    Avg CPU:            ${chalk.white(formatMs(scenario.avg.totalCpuMs))}`);
+          console.log(`    Avg energy:        ${chalk.green(`${scenario.avg.estimatedEnergyMWh.toFixed(4)} mWh`)}`);
+          console.log(`    Avg CO2:            ${chalk.yellow(`${scenario.avg.estimatedCo2g.toExponential(3)} gCO2e`)}`);
         }
 
         console.log(chalk.bold('├────────────────────────────────────────────────────────────┤'));
-        console.log(`  CPU medio pesato:       ${chalk.cyan(formatMs(weighted.totalCpuMs))}`);
-        console.log(`  Energia media pesata:   ${chalk.green(`${weighted.estimatedEnergyMWh.toFixed(4)} mWh`)}`);
-        console.log(`  Lavoro medio pesato:    ${chalk.white(`${weighted.estimatedEnergyJ.toFixed(4)} J`)}`);
-        console.log(`  CO2 media pesata:       ${chalk.yellow(`${weighted.estimatedCo2g.toExponential(3)} gCO2e`)}`);
+        console.log(`  Weighted avg CPU:       ${chalk.cyan(formatMs(weighted.totalCpuMs))}`);
+        console.log(`  Weighted avg Energy:   ${chalk.green(`${weighted.estimatedEnergyMWh.toFixed(4)} mWh`)}`);
+        console.log(`  Avg work pesato:    ${chalk.white(`${weighted.estimatedEnergyJ.toFixed(4)} J`)}`);
+        console.log(`  Weighted avg CO2:       ${chalk.yellow(`${weighted.estimatedCo2g.toExponential(3)} gCO2e`)}`);
         console.log(chalk.bold('└────────────────────────────────────────────────────────────┘'));
       } else {
-        const spinner = ora(`Profilazione dinamica in corso: ${file}`).start();
+        const spinner = ora(`Dynamic profiling in progress: ${file}`).start();
         const metrics = await measureFileProfile(file);
 
-        spinner.succeed(chalk.green('Profilazione completata.'));
+        spinner.succeed(chalk.green('Profiling completed.'));
 
         console.log(chalk.bold('\n┌──────────────────────────────────────────┐'));
-        console.log(chalk.bold('│      ⚙ RISULTATI PROFILAZIONE DINAMICA   │'));
+        console.log(chalk.bold('│       ⚙ DYNAMIC PROFILING RESULTS        │'));
         console.log(chalk.bold('├──────────────────────────────────────────┤'));
-        console.log(`  File eseguito:         ${chalk.cyan(file)}`);
+        console.log(`  Executed file:         ${chalk.cyan(file)}`);
         console.log(`  CPU User Time:         ${chalk.white(formatMs(metrics.userCpuMs))}`);
         console.log(`  CPU System Time:       ${chalk.white(formatMs(metrics.systemCpuMs))}`);
-        console.log(`  CPU Time Totale:       ${chalk.cyan(formatMs(metrics.totalCpuMs))}`);
+        console.log(`  Total CPU Time:       ${chalk.cyan(formatMs(metrics.totalCpuMs))}`);
         console.log(`  Wall Time:             ${chalk.white(formatMs(metrics.elapsedWallMs))}`);
-        console.log(`  Energia Stimata:       ${chalk.green(`${metrics.estimatedEnergyMWh.toFixed(4)} mWh`)}`);
-        console.log(`  Lavoro Stimato:        ${chalk.white(`${metrics.estimatedEnergyJ.toFixed(4)} J`)}`);
-        console.log(`  CO2 Stimata:           ${chalk.yellow(`${metrics.estimatedCo2g.toExponential(3)} gCO2e`)}`);
+        console.log(`  Estimated Energy:       ${chalk.green(`${metrics.estimatedEnergyMWh.toFixed(4)} mWh`)}`);
+        console.log(`  Estimated Work:        ${chalk.white(`${metrics.estimatedEnergyJ.toFixed(4)} J`)}`);
+        console.log(`  Estimated CO2:           ${chalk.yellow(`${metrics.estimatedCo2g.toExponential(3)} gCO2e`)}`);
         console.log(chalk.bold('└──────────────────────────────────────────┘'));
       }
 
-      console.log(chalk.gray('\nAssunzioni usate:'));
-      console.log(chalk.gray(`- Potenza CPU standard: ${STANDARD_CPU_WATTAGE} W`));
-      console.log(chalk.gray(`- Intensita carbonica media: ${GRID_CARBON_INTENSITY_G_PER_KWH} gCO2e/kWh`));
-      console.log(chalk.gray('- Formula energia: (CPU_Time_ms * Standard_CPU_Wattage) / 3600 => mWh\n'));
+      console.log(chalk.gray('\nAssumptions used:'));
+      console.log(chalk.gray(`- Standard CPU power: ${STANDARD_CPU_WATTAGE} W`));
+      console.log(chalk.gray(`- Avg carbon intensity: ${GRID_CARBON_INTENSITY_G_PER_KWH} gCO2e/kWh`));
+      console.log(chalk.gray('- Energy formula: (CPU_Time_ms * Standard_CPU_Wattage) / 3600 => mWh\n'));
     } catch (error) {
-      console.log(chalk.red('Profilazione fallita.'));
-      console.error(chalk.red(`\n❌ Errore: ${error.message}\n`));
+      console.log(chalk.red('Profiling failed.'));
+      console.error(chalk.red(`\n❌ Error: ${error.message}\n`));
       process.exitCode = 1;
     }
   });
