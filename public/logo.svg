@@ -14,7 +14,11 @@
   <g filter="url(#gcGlow)">
     <rect x="8" y="8" width="64" height="64" rx="16" fill="url(#gcBadgeGrad)" />
     <rect x="8.5" y="8.5" width="63" height="63" rx="15.5" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-    <text x="40" y="52" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="42" font-weight="900" fill="#052014" text-anchor="middle" dominant-baseline="central">A</text>
+    <path
+      d="M 37.0 23.0 L 43.0 23.0 L 54.0 56.0 L 47.0 56.0 L 44.0 46.0 L 36.0 46.0 L 33.0 56.0 L 26.0 56.0 Z M 40.0 31.0 L 37.8 40.3 L 42.3 40.3 Z"
+      fill="#052014"
+      fill-rule="evenodd"
+    />
   </g>
 
   <!-- Wordmark -->

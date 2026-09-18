@@ -17,7 +17,10 @@ export const metadata: Metadata = {
   title: "GreenCode | The ecological impact of your code",
   description: "Analyze and optimize the eco-sustainability of your GitHub repositories.",
   icons: {
-    icon: "/icon.svg",
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
   },
 };
 
