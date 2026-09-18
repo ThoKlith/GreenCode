@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "GreenCode | The ecological impact of your code",
   description: "Analyze and optimize the eco-sustainability of your GitHub repositories.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

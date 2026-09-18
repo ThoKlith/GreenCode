@@ -1,18 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { Leaf } from "lucide-react";
+import { Logo } from "./Logo";
 import AuthButton from "./AuthButton";
 
 export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center px-4 md:px-8">
-        <Link href="/" className="flex items-center space-x-2">
-          <Leaf className="h-6 w-6 text-primary drop-shadow-[0_0_8px_rgba(20,250,150,0.8)]" />
-          <span className="hidden font-bold sm:inline-block text-xl tracking-tight text-white drop-shadow-md">
-            GreenCode
-          </span>
+        <Link
+          href="/"
+          className="flex items-center transition-transform hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-lg"
+          aria-label="GreenCode Home"
+        >
+          <Logo size="md" />
         </Link>
         <nav className="hidden md:flex items-center gap-5 ml-8 text-sm text-muted-foreground">
           <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
