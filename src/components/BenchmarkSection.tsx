@@ -90,8 +90,7 @@ export function BenchmarkSection() {
         </div>
 
         <div className="mt-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-amber-100/90">
-          <strong className="text-amber-200">Nota pratica:</strong> il profiler esegue codice reale in locale.
-          Profilare solo file sicuri e ripetere i benchmark (3-5 run) per ridurre rumore statistico.
+          <strong className="text-amber-200">Nota pratica:</strong> the profiler runs real code locally. Only profile safe files and repeat benchmarks (3-5 runs) to reduce statistical noise.
         </div>
       </motion.div>
     </section>

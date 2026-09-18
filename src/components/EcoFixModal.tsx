@@ -49,7 +49,7 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
       if (data.fixedCode) setFixedCode(data.fixedCode);
     } catch (e) {
       console.error(e);
-      setError("Errore di rete durante Eco-Fix.");
+      setError("Network error during Eco-Fix.");
     } finally {
       setLoading(false);
     }
@@ -85,7 +85,7 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
           {/* Prima */}
           <div className="bg-destructive/10 border border-destructive/20 rounded-xl overflow-hidden flex flex-col">
             <div className="px-4 py-2 bg-destructive/20 text-xs font-semibold text-red-300">
-              PRIMA (Originale, locale)
+              BEFORE (Original, local)
             </div>
             <div className="p-4 flex-1 space-y-3">
               <p className="text-xs text-red-200/80">
@@ -108,12 +108,12 @@ export function EcoFixModal({ isOpen, onClose, snippet }: EcoFixModalProps) {
           {/* Dopo */}
           <div className="bg-primary/10 border border-primary/20 rounded-xl overflow-hidden flex flex-col relative min-h-[200px]">
              <div className="px-4 py-2 bg-primary/20 text-xs font-semibold text-emerald-300">
-              DOPO (Eco-Optimized)
+              AFTER (Eco-Optimized)
             </div>
             {!fixedCode && !loading && (
               <div className="flex-1 flex items-center justify-center p-8">
                 <Button onClick={handleFix} size="lg" className="shadow-[0_0_15px_rgba(20,250,150,0.4)]">
-                  Genera Refactoring AI
+                  Generate AI Refactoring
                 </Button>
               </div>
             )}

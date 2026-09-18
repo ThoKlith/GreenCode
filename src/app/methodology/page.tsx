@@ -22,11 +22,10 @@ export default function MethodologyPage() {
           Scientific Method
         </div>
         <h1 className="mt-5 text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
-          Metodo GreenCode: trasparenza prima di tutto.
+          The GreenCode Method: transparency first.
         </h1>
         <p className="mt-5 max-w-3xl text-muted-foreground text-base md:text-lg leading-relaxed">
-          GreenCode non inventa voti. Traduce pattern computazionali in metriche verificabili,
-          combinando scoring statico e profilazione dinamica per stimare impatto energetico e carbonico.
+          GreenCode doesn't make up grades. It translates computational patterns into verifiable metrics, combining static scoring and dynamic profiling to estimate energy and carbon impact.
         </p>
       </section>
 
@@ -49,15 +48,13 @@ export default function MethodologyPage() {
             <div className="rounded-2xl border border-border/50 bg-background/45 p-4">
               <h3 className="font-semibold flex items-center gap-2"><Cpu className="h-4 w-4 text-primary" /> Computing the score</h3>
               <p className="text-sm text-muted-foreground mt-2">
-                Ogni finding riduce lo score con una penalita proporzionale alla severita energetica stimata.
-                Lo score finale viene mappato su classe A-G per rendere immediata la lettura del rischio energetico.
+                Each finding lowers the score with a penalty proportional to the estimated energy severity. The final score is mapped to an A-G class to make the energy risk immediately readable.
               </p>
             </div>
             <div className="rounded-2xl border border-border/50 bg-background/45 p-4">
               <h3 className="font-semibold flex items-center gap-2"><Sigma className="h-4 w-4 text-primary" /> Interpretazione</h3>
               <p className="text-sm text-muted-foreground mt-2">
-                Una classe bassa non e un giudizio estetico: indica probabilita piu alta di spreco computazionale,
-                maggiore uso di batteria e costi cloud superiori in produzione.
+                A low class is not an aesthetic judgment: it indicates a higher probability of computational waste, more battery use and higher cloud costs in production.
               </p>
             </div>
           </div>
@@ -81,15 +78,13 @@ export default function MethodologyPage() {
           </div>
 
           <h2 className="mt-3 text-2xl md:text-3xl font-bold tracking-tight">
-            Dal tempo CPU a Joule, Watt e CO2
+            From CPU time to Joules, Watts and CO2
           </h2>
 
           <p className="mt-4 text-muted-foreground leading-relaxed">
             The CLI command <code className="px-1.5 py-0.5 rounded bg-white/10">ecocode profile &lt;file&gt;</code>
-            esegue il file localmente e misura il tempo CPU user/system con moduli nativi Node.js.
-            Per analisi piu rappresentative su repository reali, <code className="px-1.5 py-0.5 rounded bg-white/10">ecocode profile project</code>
-            esegue piu scenari da config, ripete i benchmark e produce una media pesata.
-            Da queste misure stimiamo l&apos;energia in mWh con il modello:
+            runs the file locally and measures user/system CPU time with native Node.js modules. For more representative analysis on real repositories, <code className="px-1.5 py-0.5 rounded bg-white/10">ecocode profile project</code>
+            runs multiple scenarios from config, repeats the benchmarks and produces a weighted average. From these measurements we estimate energy in mWh with the model:
           </p>
 
           <pre className="mt-4 rounded-xl border border-border/60 bg-[oklch(0.1_0_0)] p-4 text-sm text-emerald-300 overflow-x-auto">
@@ -98,9 +93,7 @@ CO2_g = (Energia_mWh / 1_000_000) * Carbon_Intensity_gCO2e_per_kWh`}
           </pre>
 
           <p className="mt-5 text-muted-foreground leading-relaxed">
-            Questa e una stima ingegneristica, non una misura da laboratorio. Tuttavia segue logiche di
-            efficienza computazionale coerenti con i principi promossi dalla Green Software Foundation:
-            usare dati osservabili, esplicitare assunzioni e ottimizzare dove il consumo reale e dimostrabile.
+            This is an engineering estimate, not a lab measurement. Still, it follows computational efficiency logic consistent with the principles promoted by the Green Software Foundation: use observable data, state assumptions explicitly, and optimize where real consumption is demonstrable.
           </p>
 
           <div className="mt-6 rounded-2xl border border-border/60 bg-background/45 p-4">

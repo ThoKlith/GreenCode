@@ -102,7 +102,7 @@ export function RealtimeSection() {
               <div>
                 <h3 className="font-semibold text-lg">AI Quick Fix</h3>
                 <p className="text-muted-foreground text-sm mt-1">
-                  Un click sulla lampadina e GreenCode propone un refactoring energeticamente migliore, rispettando il tuo contesto locale.
+                  One click on the lightbulb and GreenCode proposes a more energy-efficient refactoring, respecting your local context.
                 </p>
               </div>
             </div>

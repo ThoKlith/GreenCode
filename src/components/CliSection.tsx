@@ -56,8 +56,7 @@ export function CliSection() {
           </span>
         </h2>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Con la CLI analizzi il progetto direttamente sulla tua macchina con parsing AST locale.
-          Il server riceve solo metadati del report (punteggi, file e linee), mai il sorgente.
+          With the CLI you analyze the project directly on your machine with local AST parsing. The server only receives report metadata (scores, files and lines), never the source.
         </p>
       </motion.div>
 

@@ -96,7 +96,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ fixedCode: data.fixedCode });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Errore durante l\'eco-fix.';
+    const message = error instanceof Error ? error.message : 'Error during l\'eco-fix.';
     console.error('Eco-fix error:', error);
     return NextResponse.json(
       { error: message },
