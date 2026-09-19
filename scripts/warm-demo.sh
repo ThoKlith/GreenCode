@@ -7,11 +7,11 @@
 set -u
 BASE="${1:-http://localhost:4321}"
 
-# Set curato: contrasto A (pulito) -> C (reale) -> G (pessimo)
+# Set curato (misurato con OpenAI): contrasto A (pulito) -> C (reale, il nostro) -> D (anti-pattern)
 REPOS=(
-  "https://github.com/sindresorhus/is-plain-obj"          # atteso ~A (pulito)
-  "https://github.com/ThoKlith/GreenCode"                 # atteso ~C (il nostro, sprechi reali)
-  "https://github.com/felixge/node-memory-leak-tutorial"  # atteso ~G (memory leak)
+  "https://github.com/sindresorhus/is-obj"                # misurato A (95, 0 findings) - il "buono"
+  "https://github.com/ThoKlith/GreenCode"                 # misurato C (findings reali) - il nostro, onesto
+  "https://github.com/felixge/node-memory-leak-tutorial"  # misurato D (memory leak) - anti-pattern
 )
 
 echo "Warm-up cache demo su $BASE"

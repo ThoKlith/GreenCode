@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { getAiConfig } from '@/lib/ai';
 
 function buildPrompt(code: string, filename: string) {
   return `Act as an expert Green Software Engineer. You are given an inefficient snippet to optimize to reduce CPU compute, network and server cost, preserving EXACTLY the behavior.
@@ -32,21 +33,18 @@ function extractJson(text: string): any {
   return null;
 }
 
-// Motore AI: NVIDIA NIM. Primario gemma-4-31b-it (JSON diretto), fallback ai modelli reasoning.
-// La validazione JSON e DENTRO il ciclo: un modello che risponde male fa passare al successivo.
-async function callNvidia(apiKey: string, prompt: string) {
-  const MODELS = [
-    'google/gemma-4-31b-it',
-    'nvidia/nemotron-3-super-120b-a12b',
-    'nvidia/nemotron-3-ultra-550b-a55b',
-  ];
+// Motore AI configurabile (OpenAI-compatibile) via getAiConfig(). Primario il modello instruct
+// (JSON diretto), fallback agli altri. La validazione JSON e DENTRO il ciclo: un modello che
+// risponde male fa passare al successivo.
+async function callAi(prompt: string) {
+  const ai = getAiConfig();
   let lastErr = '';
-  for (const model of MODELS) {
+  for (const model of ai.models) {
     try {
-      const res = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+      const res = await fetch(`${ai.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${ai.apiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -68,7 +66,7 @@ async function callNvidia(apiKey: string, prompt: string) {
       lastErr = (e instanceof Error ? e.message : String(e)) + ` (${model})`;
     }
   }
-  throw new Error(`Eco-Fix: NVIDIA engine unavailable. Details: ${lastErr}`);
+  throw new Error(`Eco-Fix: AI engine unavailable. Details: ${lastErr}`);
 }
 
 export async function POST(request: Request) {
@@ -79,16 +77,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Payload non valido: code e filename sono obbligatori.' }, { status: 400 });
     }
 
-    const nvidiaKey = process.env.NVIDIA_API_KEY;
-    if (!nvidiaKey) {
+    if (!getAiConfig().apiKey) {
       return NextResponse.json(
-        { error: 'Chiave API NVIDIA non configurata per Eco-Fix.' },
+        { error: 'No AI provider configured for Eco-Fix (set OPENAI_API_KEY or NVIDIA_API_KEY).' },
         { status: 500 }
       );
     }
 
     const prompt = buildPrompt(code, filename);
-    const data = await callNvidia(nvidiaKey, prompt);
+    const data = await callAi(prompt);
 
     if (!data?.fixedCode || typeof data.fixedCode !== 'string') {
       throw new Error('Invalid model response: fixedCode missing.');

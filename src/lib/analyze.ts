@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { getAiConfig } from '@/lib/ai';
 
 type RepoInfo = {
   default_branch: string;
@@ -130,9 +131,9 @@ export async function analyzeRepository(url: string) {
   const repoNameInfo = parts[1].replace(/\.git$/, '');
   const repo_name = `${repoOwner}/${repoNameInfo}`;
 
-  const nvidiaKey = process.env.NVIDIA_API_KEY;
-  if (!nvidiaKey) {
-    throw new Error("NVIDIA API key not configured (NVIDIA_API_KEY).");
+  const ai = getAiConfig();
+  if (!ai.apiKey) {
+    throw new Error("No AI provider configured (set OPENAI_API_KEY or NVIDIA_API_KEY).");
   }
 
   // Preleva il vero codice sorgente limitato
@@ -181,11 +182,7 @@ Return ONLY a valid JSON object with this structure (replace EACH placeholder wi
     // ragionamento in prosa — i modelli reasoning Nemotron sprecano token "pensando"
     // e su repo grandi non arrivano mai a produrre il JSON, causando errori di parsing).
     // I reasoning restano come fallback: funzionano su input piccoli.
-    const NVIDIA_MODELS = [
-      "google/gemma-4-31b-it",
-      "nvidia/nemotron-3-super-120b-a12b",
-      "nvidia/nemotron-3-ultra-550b-a55b",
-    ];
+    const models = ai.models;
     // Estrazione JSON robusta: i modelli reasoning avvolgono il JSON in testo/ragionamento.
     // Cerca il blocco { } bilanciato piu grande che parsa correttamente.
     const extractJson = (text: string): any => {
@@ -209,12 +206,12 @@ Return ONLY a valid JSON object with this structure (replace EACH placeholder wi
     // che restituisce JSON sporco fa passare al modello successivo invece di fallire.
     let analysisInfo: any = null;
     let lastErr = "";
-    for (const model of NVIDIA_MODELS) {
+    for (const model of models) {
       try {
-        const res = await fetch("https://integrate.api.nvidia.com/v1/chat/completions", {
+        const res = await fetch(`${ai.baseUrl}/chat/completions`, {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${nvidiaKey}`,
+            "Authorization": `Bearer ${ai.apiKey}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
