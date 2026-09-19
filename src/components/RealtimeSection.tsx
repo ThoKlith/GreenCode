@@ -23,11 +23,11 @@ export function RealtimeSection() {
       >
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium mb-6">
           <Bolt className="w-4 h-4" />
-          Programma in Time Reale
+          Real-Time Coding
         </div>
         <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
-          GreenCode ora vive
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-[#4ADE80] to-[#2DD4BF]"> dentro VS Code</span>
+          GreenCode now lives
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-[#4ADE80] to-[#2DD4BF]"> inside VS Code</span>
         </h2>
         <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
           Don't wait until you're done. GreenCode assists you as you write, highlighting energy waste like a spell-checker. Optimize your code before you even save it.

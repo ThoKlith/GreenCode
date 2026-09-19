@@ -68,7 +68,7 @@ async function callNvidia(apiKey: string, prompt: string) {
       lastErr = (e instanceof Error ? e.message : String(e)) + ` (${model})`;
     }
   }
-  throw new Error(`Eco-Fix: motore NVIDIA non disponibile. Dettagli: ${lastErr}`);
+  throw new Error(`Eco-Fix: NVIDIA engine unavailable. Details: ${lastErr}`);
 }
 
 export async function POST(request: Request) {
@@ -91,7 +91,7 @@ export async function POST(request: Request) {
     const data = await callNvidia(nvidiaKey, prompt);
 
     if (!data?.fixedCode || typeof data.fixedCode !== 'string') {
-      throw new Error('Risposta modello non valida: fixedCode mancante.');
+      throw new Error('Invalid model response: fixedCode missing.');
     }
 
     return NextResponse.json({ fixedCode: data.fixedCode });

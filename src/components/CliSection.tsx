@@ -50,7 +50,7 @@ export function CliSection() {
           Privacy-First
         </div>
         <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
-          Repo privata?{" "}
+          Private repo?{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-[#4ADE80] to-[#2DD4BF]">
             Analyze it locally.
           </span>

@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ecocode": "node ./cli/bin/cli.js",
+    "profile": "node ./cli/bin/cli.js profile project --config ./ecocode.profile.json"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

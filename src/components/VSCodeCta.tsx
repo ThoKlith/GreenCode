@@ -7,7 +7,7 @@ export function VSCodeCta() {
         <div>
           <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.1em] text-emerald-300 mb-2">
             <Code2 className="w-4 h-4" />
-            Programma in tempo reale
+            Real-time coding
           </div>
           <h3 className="text-xl md:text-2xl font-bold mb-2">Keep Class A while you code</h3>
           <p className="text-muted-foreground text-sm max-w-2xl">

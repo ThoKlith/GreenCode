@@ -1,0 +1,10 @@
+{
+  "repeat": 3,
+  "scenarios": [
+    {
+      "name": "Gemini Model Listing",
+      "file": "./src/lib/list-models.js",
+      "weight": 2
+    }
+  ]
+}
