@@ -1,6 +1,6 @@
 {
   "name": "ecocode",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "GreenCode CLI — measure the real energy & CO2 impact of your code (static analysis + real CPU profiling).",
   "keywords": [
     "green-software",

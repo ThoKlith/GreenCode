@@ -448,7 +448,7 @@ function averageFromRuns(runs) {
 async function executeFileForProfiling(targetFilePath) {
   const absolutePath = path.resolve(process.cwd(), targetFilePath);
   if (!fs.existsSync(absolutePath)) {
-    throw new Error(`File not found: ${targetFilePath}`);
+    throw new Error(`File not found: ${targetFilePath}\n   Fix the "file" path in ${DEFAULT_PROJECT_PROFILE_CONFIG} (or run "ecocode analyze" for a no-setup estimate).`);
   }
 
   const fileStat = fs.statSync(absolutePath);
@@ -695,12 +695,46 @@ program
     }
   });
 
+// Try to find a file that can actually be executed (for profile-project scenarios).
+function findRunnableEntrypoint(cwd) {
+  // 1) package.json "main" / "bin"
+  try {
+    const pkgPath = path.join(cwd, 'package.json');
+    if (fs.existsSync(pkgPath)) {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+      const candidates = [];
+      if (typeof pkg.main === 'string') candidates.push(pkg.main);
+      if (typeof pkg.bin === 'string') candidates.push(pkg.bin);
+      else if (pkg.bin && typeof pkg.bin === 'object') candidates.push(...Object.values(pkg.bin));
+      for (const c of candidates) {
+        const abs = path.resolve(cwd, c);
+        if (/\.(js|mjs|cjs)$/i.test(abs) && fs.existsSync(abs)) {
+          return './' + path.relative(cwd, abs).split(path.sep).join('/');
+        }
+      }
+    }
+  } catch { /* ignore malformed package.json */ }
+  // 2) common standalone entry files
+  const commons = ['index.js', 'index.mjs', 'src/index.js', 'src/index.mjs', 'app.js', 'main.js', 'src/main.js', 'server.js'];
+  for (const rel of commons) {
+    if (fs.existsSync(path.resolve(cwd, rel))) return './' + rel;
+  }
+  return null;
+}
+
+// Detect frameworks that have NO standalone runnable entrypoint (so profile-project doesn't apply).
+function looksLikeWebFramework(cwd) {
+  const markers = ['next.config.ts', 'next.config.js', 'next.config.mjs', 'vite.config.ts', 'vite.config.js', 'nuxt.config.ts', 'svelte.config.js', 'astro.config.mjs'];
+  return markers.some((f) => fs.existsSync(path.resolve(cwd, f)));
+}
+
 program
   .command('init')
   .description(`Create a starter ${DEFAULT_PROJECT_PROFILE_CONFIG} in the current folder (for "profile-project")`)
   .option('-f, --force', 'Overwrite an existing config', false)
   .action((options) => {
-    const target = path.resolve(process.cwd(), DEFAULT_PROJECT_PROFILE_CONFIG);
+    const cwd = process.cwd();
+    const target = path.resolve(cwd, DEFAULT_PROJECT_PROFILE_CONFIG);
 
     if (fs.existsSync(target) && !options.force) {
       console.log(chalk.yellow(`\n⚠ ${DEFAULT_PROJECT_PROFILE_CONFIG} already exists.`));
@@ -708,21 +742,36 @@ program
       return;
     }
 
+    const detected = findRunnableEntrypoint(cwd);
+
+    // No runnable entrypoint (e.g. a Next.js / Vite web app): explain why, then send to analyze.
+    if (!detected) {
+      console.log(chalk.yellow('\n⚠ No runnable entrypoint found in this project.\n'));
+      console.log(`  "profile-project" measures energy by ${chalk.bold('actually running your code')}, so it needs`);
+      console.log('  a file it can execute (.js / .mjs / .cjs).');
+      if (looksLikeWebFramework(cwd)) {
+        console.log(`  This looks like a ${chalk.bold('web app (Next.js / Vite / …)')}: it has no standalone runnable`);
+        console.log('  entrypoint, so profile-project does not apply here.');
+      }
+      console.log(`\n  ${chalk.bold('👉 Use')} ${chalk.cyan('npx ecocode@latest analyze')} ${chalk.bold('instead')} — no config needed, it works here.`);
+      console.log(chalk.gray(`\n  (Advanced: if you do have runnable scripts, create ${DEFAULT_PROJECT_PROFILE_CONFIG} by hand — see the README.)\n`));
+      return;
+    }
+
+    // Found a runnable entrypoint: write a config that works out of the box.
     const starter = {
       repeat: 3,
       scenarios: [
-        { name: 'Main entrypoint', file: './index.js', weight: 3 },
-        { name: 'Secondary flow', file: './scripts/task.js', weight: 1 }
+        { name: 'Main entrypoint', file: detected, weight: 1 }
       ]
     };
-
     fs.writeFileSync(target, JSON.stringify(starter, null, 2) + '\n', 'utf-8');
 
-    console.log(chalk.green(`\n✔ Created ${DEFAULT_PROJECT_PROFILE_CONFIG}\n`));
+    console.log(chalk.green(`\n✔ Created ${DEFAULT_PROJECT_PROFILE_CONFIG}`));
+    console.log(chalk.gray(`  Detected entrypoint: ${detected}\n`));
     console.log(chalk.bold('Next steps:'));
-    console.log(`  1. Edit ${chalk.cyan('"scenarios"')} so each ${chalk.cyan('"file"')} points to a real runnable entrypoint (.js/.mjs/.cjs).`);
-    console.log(`  2. Set a ${chalk.cyan('"weight"')} per scenario (how much that flow matters in real usage — higher counts more).`);
-    console.log(`  3. Run:  ${chalk.cyan('npx ecocode@latest profile-project')}\n`);
+    console.log(`  1. (Optional) add more ${chalk.cyan('"scenarios"')} and set a ${chalk.cyan('"weight"')} per flow.`);
+    console.log(`  2. Run:  ${chalk.cyan('npx ecocode@latest profile-project')}\n`);
   });
 
 program.parse();
