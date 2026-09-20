@@ -33,15 +33,22 @@ npx ecocode@latest analyze --max-files 50
 # run and dynamically profile a local file (CPU -> mWh -> CO2)
 npx ecocode@latest profile ./dist/index.js
 
-# profile the whole project through configured scenarios
-npx ecocode@latest profile project --config ./ecocode.profile.json --repeat 5
+# profile the WHOLE project through configured scenarios (needs ecocode.profile.json)
+npx ecocode@latest profile-project --repeat 5
 ```
 
 Dynamic project profiling (multi-scenario):
 
-1. Create `ecocode.profile.json` in the root (you can start from `ecocode.profile.example.json`).
-2. Define the real scenarios to run (JS/MJS/CJS entrypoints) and an optional weight.
-3. Run `npx ecocode@latest profile project` to get a weighted CPU/mWh/gCO2e average.
+`profile-project` measures **real** energy by **actually running your code**, so it has to
+know *what* to run. You declare that once in an `ecocode.profile.json` at the project root.
+
+> The other two commands need **no config** and work anywhere with zero setup:
+> `analyze` scans the whole folder (static estimate) and `profile <file>` runs a single file.
+> Only the weighted whole-project measurement needs the JSON.
+
+1. Create `ecocode.profile.json` in the root (copy from `ecocode.profile.example.json`).
+2. Define the real scenarios to run (JS/MJS/CJS entrypoints) and an optional `weight` (how much that flow matters in real usage — higher weight counts more in the average).
+3. Run `npx ecocode@latest profile-project` to get a weighted CPU / mWh / gCO2e average for the whole project.
 
 Example config:
 
