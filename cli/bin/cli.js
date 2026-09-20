@@ -9,7 +9,7 @@ import { performance } from 'perf_hooks';
 import { pathToFileURL } from 'url';
 import ts from 'typescript';
 
-// Cartelle da ignorare sempre
+// Folders to always ignore
 const IGNORED_DIRS = new Set([
   'node_modules', '.git', '.next', 'dist', 'build', '.cache',
   'coverage', '.nyc_output', '__pycache__', '.venv', 'venv',
@@ -349,7 +349,7 @@ function parsePositiveInteger(raw, fallback) {
 function loadProjectProfileConfig(configPath) {
   const resolvedPath = path.resolve(process.cwd(), configPath || DEFAULT_PROJECT_PROFILE_CONFIG);
   if (!fs.existsSync(resolvedPath)) {
-    throw new Error(`Config not found: ${resolvedPath}. Create a ${DEFAULT_PROJECT_PROFILE_CONFIG} file in the project root.`);
+    throw new Error(`Config not found: ${resolvedPath}\n   Tip: run "ecocode init" to create a starter ${DEFAULT_PROJECT_PROFILE_CONFIG}, then edit its scenarios.`);
   }
 
   let parsed;
@@ -693,6 +693,36 @@ program
       console.error(chalk.red(`\n❌ Error: ${error.message}\n`));
       process.exitCode = 1;
     }
+  });
+
+program
+  .command('init')
+  .description(`Create a starter ${DEFAULT_PROJECT_PROFILE_CONFIG} in the current folder (for "profile-project")`)
+  .option('-f, --force', 'Overwrite an existing config', false)
+  .action((options) => {
+    const target = path.resolve(process.cwd(), DEFAULT_PROJECT_PROFILE_CONFIG);
+
+    if (fs.existsSync(target) && !options.force) {
+      console.log(chalk.yellow(`\n⚠ ${DEFAULT_PROJECT_PROFILE_CONFIG} already exists.`));
+      console.log(chalk.gray('  Use --force to overwrite it.\n'));
+      return;
+    }
+
+    const starter = {
+      repeat: 3,
+      scenarios: [
+        { name: 'Main entrypoint', file: './index.js', weight: 3 },
+        { name: 'Secondary flow', file: './scripts/task.js', weight: 1 }
+      ]
+    };
+
+    fs.writeFileSync(target, JSON.stringify(starter, null, 2) + '\n', 'utf-8');
+
+    console.log(chalk.green(`\n✔ Created ${DEFAULT_PROJECT_PROFILE_CONFIG}\n`));
+    console.log(chalk.bold('Next steps:'));
+    console.log(`  1. Edit ${chalk.cyan('"scenarios"')} so each ${chalk.cyan('"file"')} points to a real runnable entrypoint (.js/.mjs/.cjs).`);
+    console.log(`  2. Set a ${chalk.cyan('"weight"')} per scenario (how much that flow matters in real usage — higher counts more).`);
+    console.log(`  3. Run:  ${chalk.cyan('npx ecocode@latest profile-project')}\n`);
   });
 
 program.parse();
