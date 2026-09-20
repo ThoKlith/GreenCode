@@ -1,11 +1,20 @@
 {
   "name": "ecocode",
-  "version": "1.3.0",
-  "description": "EcoCode CLI for local repository codebase analysis",
+  "version": "1.4.0",
+  "description": "GreenCode CLI — measure the real energy & CO2 impact of your code (static analysis + real CPU profiling).",
+  "keywords": [
+    "green-software",
+    "sustainability",
+    "energy",
+    "co2",
+    "cli",
+    "profiling",
+    "static-analysis"
+  ],
   "main": "bin/cli.js",
   "type": "module",
   "license": "MIT",
-  "homepage": "https://ecocode.app",
+  "homepage": "https://green-code-swart.vercel.app",
   "publishConfig": {
     "access": "public"
   },

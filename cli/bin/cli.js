@@ -513,7 +513,7 @@ program
         counters.db += parsed.counts.db;
         counters.ai += parsed.counts.ai;
       } catch {
-        // Salta file non leggibili o con parsing non valido
+        // Skip unreadable files or those with invalid parsing
       }
     }
 
@@ -555,15 +555,15 @@ program
       console.log(chalk.bold('├──────────────────────────────────────────┤'));
 
       const classColor = ['A', 'B'].includes(reportPayload.energy_class) ? chalk.green : ['C', 'D'].includes(reportPayload.energy_class) ? chalk.yellow : chalk.red;
-      console.log(`  Class Energetica:     ${classColor.bold(reportPayload.energy_class)}`);
-      console.log(`  Estimated CO2:           ${chalk.white(reportPayload.co2_estimate)} kg/anno`);
+      console.log(`  Energy Class:          ${classColor.bold(reportPayload.energy_class)}`);
+      console.log(`  Estimated CO2:         ${chalk.white(reportPayload.co2_estimate)} kg/year`);
       console.log(`  Code Efficiency:       ${chalk.cyan(reportPayload.efficiency_score)}/100`);
-      console.log(`  Ottimizzazione AI:     ${chalk.cyan(reportPayload.ai_optimization_score)}/100`);
+      console.log(`  AI Optimization:       ${chalk.cyan(reportPayload.ai_optimization_score)}/100`);
       console.log(`  Inefficiencies found:  ${chalk.yellow(reportPayload.snippets.length)}`);
 
       console.log(chalk.bold('└──────────────────────────────────────────┘'));
 
-      console.log('\n' + chalk.bold('🌍 Report completo con soluzioni AI:'));
+      console.log('\n' + chalk.bold('🌍 Full report with AI solutions:'));
       console.log(chalk.blueBright.underline.bold(`   ${data.url}`));
       console.log(chalk.gray('\n   Open the link in the browser to view the dashboard.\n'));
 
@@ -571,104 +571,125 @@ program
       spinner.fail(chalk.red('Analysis failed.'));
       console.error(chalk.red(`\n❌ Error: ${error.message}`));
       console.log(chalk.gray(`\nCheck that:`));
-      console.log(chalk.gray(`  1. L'endpoint API sia raggiungibile su ${options.host}`));
+      console.log(chalk.gray(`  1. The API endpoint is reachable at ${options.host}`));
       console.log(chalk.gray(`     Tip: ecocode analyze --host https://green-code-swart.vercel.app`));
       console.log(chalk.gray(`  2. The 'local_reports' table exists in the Supabase database`));
-      console.log(chalk.gray(`  3. The server variables (NVIDIA_API_KEY) are configured in the deployment\n`));
+      console.log(chalk.gray(`  3. The AI provider key (OPENAI_API_KEY) is configured in the deployment\n`));
+    }
+  });
+
+async function printProjectProfile(options) {
+  const configData = loadProjectProfileConfig(options.config || DEFAULT_PROJECT_PROFILE_CONFIG);
+  const cliRepeat = parsePositiveInteger(options.repeat, configData.repeat);
+  const spinner = ora('Dynamic project profiling in progress...').start();
+
+  const scenarioSummaries = [];
+  for (const scenario of configData.scenarios) {
+    const runs = [];
+    for (let i = 0; i < cliRepeat; i += 1) {
+      spinner.text = `Scenario ${scenario.name} (${i + 1}/${cliRepeat})`;
+      const runMetrics = await measureFileProfile(scenario.file);
+      runs.push(runMetrics);
+    }
+    scenarioSummaries.push({ ...scenario, avg: averageFromRuns(runs), runs: cliRepeat });
+  }
+
+  const totalWeight = scenarioSummaries.reduce((acc, s) => acc + s.weight, 0) || 1;
+  const weighted = scenarioSummaries.reduce((acc, s) => {
+    const factor = s.weight / totalWeight;
+    acc.totalCpuMs += s.avg.totalCpuMs * factor;
+    acc.estimatedEnergyMWh += s.avg.estimatedEnergyMWh * factor;
+    acc.estimatedEnergyJ += s.avg.estimatedEnergyJ * factor;
+    acc.estimatedCo2g += s.avg.estimatedCo2g * factor;
+    return acc;
+  }, { totalCpuMs: 0, estimatedEnergyMWh: 0, estimatedEnergyJ: 0, estimatedCo2g: 0 });
+
+  spinner.succeed(chalk.green('Project profiling completed.'));
+
+  console.log(chalk.bold('\n┌────────────────────────────────────────────────────────────┐'));
+  console.log(chalk.bold('│              ⚙ DYNAMIC PROJECT PROFILING                 │'));
+  console.log(chalk.bold('├────────────────────────────────────────────────────────────┤'));
+  console.log(`  Config:                 ${chalk.cyan(configData.configPath)}`);
+  console.log(`  Scenarios:              ${chalk.white(String(scenarioSummaries.length))}`);
+  console.log(`  Runs per scenario:      ${chalk.white(String(cliRepeat))}`);
+  console.log(chalk.bold('├────────────────────────────────────────────────────────────┤'));
+
+  for (const scenario of scenarioSummaries) {
+    console.log(`  ${chalk.bold(scenario.name)} ${chalk.gray(`(weight ${scenario.weight})`)}`);
+    console.log(`    File:                 ${chalk.cyan(scenario.file)}`);
+    console.log(`    Avg CPU:            ${chalk.white(formatMs(scenario.avg.totalCpuMs))}`);
+    console.log(`    Avg energy:        ${chalk.green(`${scenario.avg.estimatedEnergyMWh.toFixed(4)} mWh`)}`);
+    console.log(`    Avg CO2:            ${chalk.yellow(`${scenario.avg.estimatedCo2g.toExponential(3)} gCO2e`)}`);
+  }
+
+  console.log(chalk.bold('├────────────────────────────────────────────────────────────┤'));
+  console.log(`  Weighted avg CPU:       ${chalk.cyan(formatMs(weighted.totalCpuMs))}`);
+  console.log(`  Weighted avg Energy:   ${chalk.green(`${weighted.estimatedEnergyMWh.toFixed(4)} mWh`)}`);
+  console.log(`  Weighted avg Work:     ${chalk.white(`${weighted.estimatedEnergyJ.toFixed(4)} J`)}`);
+  console.log(`  Weighted avg CO2:       ${chalk.yellow(`${weighted.estimatedCo2g.toExponential(3)} gCO2e`)}`);
+  console.log(chalk.bold('└────────────────────────────────────────────────────────────┘'));
+}
+
+async function printSingleFileProfile(file) {
+  const spinner = ora(`Dynamic profiling in progress: ${file}`).start();
+  const metrics = await measureFileProfile(file);
+
+  spinner.succeed(chalk.green('Profiling completed.'));
+
+  console.log(chalk.bold('\n┌──────────────────────────────────────────┐'));
+  console.log(chalk.bold('│       ⚙ DYNAMIC PROFILING RESULTS        │'));
+  console.log(chalk.bold('├──────────────────────────────────────────┤'));
+  console.log(`  Executed file:         ${chalk.cyan(file)}`);
+  console.log(`  CPU User Time:         ${chalk.white(formatMs(metrics.userCpuMs))}`);
+  console.log(`  CPU System Time:       ${chalk.white(formatMs(metrics.systemCpuMs))}`);
+  console.log(`  Total CPU Time:       ${chalk.cyan(formatMs(metrics.totalCpuMs))}`);
+  console.log(`  Wall Time:             ${chalk.white(formatMs(metrics.elapsedWallMs))}`);
+  console.log(`  Estimated Energy:       ${chalk.green(`${metrics.estimatedEnergyMWh.toFixed(4)} mWh`)}`);
+  console.log(`  Estimated Work:        ${chalk.white(`${metrics.estimatedEnergyJ.toFixed(4)} J`)}`);
+  console.log(`  Estimated CO2:           ${chalk.yellow(`${metrics.estimatedCo2g.toExponential(3)} gCO2e`)}`);
+  console.log(chalk.bold('└──────────────────────────────────────────┘'));
+}
+
+function printProfileAssumptions() {
+  console.log(chalk.gray('\nAssumptions used:'));
+  console.log(chalk.gray(`- Standard CPU power: ${STANDARD_CPU_WATTAGE} W`));
+  console.log(chalk.gray(`- Avg carbon intensity: ${GRID_CARBON_INTENSITY_G_PER_KWH} gCO2e/kWh`));
+  console.log(chalk.gray('- Energy formula: (CPU_Time_ms * Standard_CPU_Wattage) / 3600 => mWh\n'));
+}
+
+program
+  .command('profile <file>')
+  .description('Run ONE local file and measure real CPU energy (mWh, CO2). For the whole repo use "profile-project".')
+  .option('-c, --config <path>', 'Config file with scenarios (when running "profile project")', DEFAULT_PROJECT_PROFILE_CONFIG)
+  .option('-r, --repeat <n>', 'Runs per scenario (when running "profile project")', '3')
+  .action(async (file, options) => {
+    console.log(chalk.yellow.bold("\n⚠ Warning: the profile command runs the code locally. Make sure to profile only safe files.\n"));
+    try {
+      if (file === 'project') {
+        await printProjectProfile(options);
+      } else {
+        await printSingleFileProfile(file);
+      }
+      printProfileAssumptions();
+    } catch (error) {
+      console.log(chalk.red('Profiling failed.'));
+      console.error(chalk.red(`\n❌ Error: ${error.message}\n`));
+      process.exitCode = 1;
     }
   });
 
 program
-  .command('profile <file>')
-  .description('Runs a local file and measures user/system CPU to estimate energy (mWh) and CO2')
-  .option('-c, --config <path>', 'Config file for profile project', DEFAULT_PROJECT_PROFILE_CONFIG)
-  .option('-r, --repeat <n>', 'Number of runs per scenario in profile project', '3')
-  .action(async (file, options) => {
-    console.log(chalk.yellow.bold("\n⚠ Warning: the profile command runs the code locally. Make sure to profile only safe files.\n"));
-
+  .command('profile-project')
+  .description('Measure the WHOLE project: runs weighted real scenarios from ecocode.profile.json (real energy KPI)')
+  .option('-c, --config <path>', 'Config file with the scenarios', DEFAULT_PROJECT_PROFILE_CONFIG)
+  .option('-r, --repeat <n>', 'Number of runs per scenario', '3')
+  .action(async (options) => {
+    console.log(chalk.yellow.bold("\n⚠ Warning: this command runs your project's scenarios locally. Make sure they are safe.\n"));
     try {
-      if (file === 'project') {
-        const configData = loadProjectProfileConfig(options.config || DEFAULT_PROJECT_PROFILE_CONFIG);
-        const cliRepeat = parsePositiveInteger(options.repeat, configData.repeat);
-        const spinner = ora('Dynamic project profiling in progress...').start();
-
-        const scenarioSummaries = [];
-
-        for (const scenario of configData.scenarios) {
-          const runs = [];
-          for (let i = 0; i < cliRepeat; i += 1) {
-            spinner.text = `Scenario ${scenario.name} (${i + 1}/${cliRepeat})`;
-            const runMetrics = await measureFileProfile(scenario.file);
-            runs.push(runMetrics);
-          }
-
-          scenarioSummaries.push({
-            ...scenario,
-            avg: averageFromRuns(runs),
-            runs: cliRepeat
-          });
-        }
-
-        const totalWeight = scenarioSummaries.reduce((acc, s) => acc + s.weight, 0) || 1;
-        const weighted = scenarioSummaries.reduce((acc, s) => {
-          const factor = s.weight / totalWeight;
-          acc.totalCpuMs += s.avg.totalCpuMs * factor;
-          acc.estimatedEnergyMWh += s.avg.estimatedEnergyMWh * factor;
-          acc.estimatedEnergyJ += s.avg.estimatedEnergyJ * factor;
-          acc.estimatedCo2g += s.avg.estimatedCo2g * factor;
-          return acc;
-        }, { totalCpuMs: 0, estimatedEnergyMWh: 0, estimatedEnergyJ: 0, estimatedCo2g: 0 });
-
-        spinner.succeed(chalk.green('Project profiling completed.'));
-
-        console.log(chalk.bold('\n┌────────────────────────────────────────────────────────────┐'));
-        console.log(chalk.bold('│              ⚙ DYNAMIC PROJECT PROFILING                 │'));
-        console.log(chalk.bold('├────────────────────────────────────────────────────────────┤'));
-        console.log(`  Config:                 ${chalk.cyan(configData.configPath)}`);
-        console.log(`  Scenari:                ${chalk.white(String(scenarioSummaries.length))}`);
-        console.log(`  Runs per scenario:      ${chalk.white(String(cliRepeat))}`);
-        console.log(chalk.bold('├────────────────────────────────────────────────────────────┤'));
-
-        for (const scenario of scenarioSummaries) {
-          console.log(`  ${chalk.bold(scenario.name)} ${chalk.gray(`(weight ${scenario.weight})`)}`);
-          console.log(`    File:                 ${chalk.cyan(scenario.file)}`);
-          console.log(`    Avg CPU:            ${chalk.white(formatMs(scenario.avg.totalCpuMs))}`);
-          console.log(`    Avg energy:        ${chalk.green(`${scenario.avg.estimatedEnergyMWh.toFixed(4)} mWh`)}`);
-          console.log(`    Avg CO2:            ${chalk.yellow(`${scenario.avg.estimatedCo2g.toExponential(3)} gCO2e`)}`);
-        }
-
-        console.log(chalk.bold('├────────────────────────────────────────────────────────────┤'));
-        console.log(`  Weighted avg CPU:       ${chalk.cyan(formatMs(weighted.totalCpuMs))}`);
-        console.log(`  Weighted avg Energy:   ${chalk.green(`${weighted.estimatedEnergyMWh.toFixed(4)} mWh`)}`);
-        console.log(`  Avg work pesato:    ${chalk.white(`${weighted.estimatedEnergyJ.toFixed(4)} J`)}`);
-        console.log(`  Weighted avg CO2:       ${chalk.yellow(`${weighted.estimatedCo2g.toExponential(3)} gCO2e`)}`);
-        console.log(chalk.bold('└────────────────────────────────────────────────────────────┘'));
-      } else {
-        const spinner = ora(`Dynamic profiling in progress: ${file}`).start();
-        const metrics = await measureFileProfile(file);
-
-        spinner.succeed(chalk.green('Profiling completed.'));
-
-        console.log(chalk.bold('\n┌──────────────────────────────────────────┐'));
-        console.log(chalk.bold('│       ⚙ DYNAMIC PROFILING RESULTS        │'));
-        console.log(chalk.bold('├──────────────────────────────────────────┤'));
-        console.log(`  Executed file:         ${chalk.cyan(file)}`);
-        console.log(`  CPU User Time:         ${chalk.white(formatMs(metrics.userCpuMs))}`);
-        console.log(`  CPU System Time:       ${chalk.white(formatMs(metrics.systemCpuMs))}`);
-        console.log(`  Total CPU Time:       ${chalk.cyan(formatMs(metrics.totalCpuMs))}`);
-        console.log(`  Wall Time:             ${chalk.white(formatMs(metrics.elapsedWallMs))}`);
-        console.log(`  Estimated Energy:       ${chalk.green(`${metrics.estimatedEnergyMWh.toFixed(4)} mWh`)}`);
-        console.log(`  Estimated Work:        ${chalk.white(`${metrics.estimatedEnergyJ.toFixed(4)} J`)}`);
-        console.log(`  Estimated CO2:           ${chalk.yellow(`${metrics.estimatedCo2g.toExponential(3)} gCO2e`)}`);
-        console.log(chalk.bold('└──────────────────────────────────────────┘'));
-      }
-
-      console.log(chalk.gray('\nAssumptions used:'));
-      console.log(chalk.gray(`- Standard CPU power: ${STANDARD_CPU_WATTAGE} W`));
-      console.log(chalk.gray(`- Avg carbon intensity: ${GRID_CARBON_INTENSITY_G_PER_KWH} gCO2e/kWh`));
-      console.log(chalk.gray('- Energy formula: (CPU_Time_ms * Standard_CPU_Wattage) / 3600 => mWh\n'));
+      await printProjectProfile(options);
+      printProfileAssumptions();
     } catch (error) {
-      console.log(chalk.red('Profiling failed.'));
+      console.log(chalk.red('Project profiling failed.'));
       console.error(chalk.red(`\n❌ Error: ${error.message}\n`));
       process.exitCode = 1;
     }

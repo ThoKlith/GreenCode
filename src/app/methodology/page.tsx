@@ -83,7 +83,7 @@ export default function MethodologyPage() {
 
           <p className="mt-4 text-muted-foreground leading-relaxed">
             The CLI command <code className="px-1.5 py-0.5 rounded bg-white/10">ecocode profile &lt;file&gt;</code>
-            runs the file locally and measures user/system CPU time with native Node.js modules. For more representative analysis on real repositories, <code className="px-1.5 py-0.5 rounded bg-white/10">ecocode profile project</code>
+            runs the file locally and measures user/system CPU time with native Node.js modules. For more representative analysis on real repositories, <code className="px-1.5 py-0.5 rounded bg-white/10">ecocode profile-project</code>
             runs multiple scenarios from config, repeats the benchmarks and produces a weighted average. From these measurements we estimate energy in mWh with the model:
           </p>
 
@@ -117,7 +117,7 @@ CO2_g = (Energia_mWh / 1_000_000) * Carbon_Intensity_gCO2e_per_kWh`}
               <h3 className="font-semibold text-emerald-300">Single File Profiling</h3>
               <ol className="mt-3 list-decimal pl-4 space-y-2 text-sm text-muted-foreground">
                 <li>Build the project if the target is TypeScript: <code className="px-1 py-0.5 rounded bg-white/10">npm run build</code></li>
-                <li>Esegui: <code className="px-1 py-0.5 rounded bg-white/10">npx ecocode@latest profile ./dist/index.js</code></li>
+                <li>Run: <code className="px-1 py-0.5 rounded bg-white/10">npx ecocode@latest profile ./dist/index.js</code></li>
                 <li>Compare CPU/mWh/gCO2e before and after a change.</li>
               </ol>
             </div>
@@ -125,7 +125,7 @@ CO2_g = (Energia_mWh / 1_000_000) * Carbon_Intensity_gCO2e_per_kWh`}
               <h3 className="font-semibold text-cyan-300">Scenario Project Profiling</h3>
               <ol className="mt-3 list-decimal pl-4 space-y-2 text-sm text-muted-foreground">
                 <li>Create the config file: <code className="px-1 py-0.5 rounded bg-white/10">ecocode.profile.json</code></li>
-                <li>Esegui: <code className="px-1 py-0.5 rounded bg-white/10">npx ecocode@latest profile project --config ./ecocode.profile.json --repeat 3</code></li>
+                <li>Run: <code className="px-1 py-0.5 rounded bg-white/10">npx ecocode@latest profile-project --config ./ecocode.profile.json --repeat 3</code></li>
                 <li>Use the weighted average as the repository's energy baseline.</li>
               </ol>
             </div>

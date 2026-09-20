@@ -1,10 +1,8 @@
 {
   "repeat": 3,
   "scenarios": [
-    {
-      "name": "Gemini Model Listing",
-      "file": "./src/lib/list-models.js",
-      "weight": 2
-    }
+    { "name": "Source scan (tokenize)", "file": "./bench/tokenize-scan.mjs", "weight": 5 },
+    { "name": "Report aggregation", "file": "./bench/aggregate-report.mjs", "weight": 3 },
+    { "name": "Deep complexity analysis", "file": "./bench/deep-analysis.mjs", "weight": 1 }
   ]
 }

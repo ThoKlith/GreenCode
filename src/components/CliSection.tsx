@@ -5,7 +5,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 
 const terminalLines = [
-  { text: "$ npx ecocode@latest profile project --config ./ecocode.profile.json", color: "text-emerald-400", delay: 0 },
+  { text: "$ npx ecocode@latest profile-project --config ./ecocode.profile.json", color: "text-emerald-400", delay: 0 },
   { text: "", color: "", delay: 0.3 },
   { text: "⚠ Warning: the profile command runs the code locally.", color: "text-yellow-300", delay: 0.5 },
   { text: "", color: "", delay: 0.7 },
@@ -30,7 +30,7 @@ export function CliSection() {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText("npx ecocode@latest profile project --config ./ecocode.profile.json");
+    navigator.clipboard.writeText("npx ecocode@latest profile-project --config ./ecocode.profile.json");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -127,7 +127,7 @@ export function CliSection() {
               onClick={handleCopy}
               className="w-full flex items-center justify-between bg-[oklch(0.10_0_0)] border border-white/10 rounded-lg px-4 py-3 font-mono text-sm text-emerald-400 hover:border-primary/40 transition-all duration-200 cursor-pointer group"
             >
-              <span>$ npx ecocode@latest profile project --config ./ecocode.profile.json</span>
+              <span>$ npx ecocode@latest profile-project --config ./ecocode.profile.json</span>
               {copied ? (
                 <Check className="w-4 h-4 text-emerald-400" />
               ) : (
@@ -146,7 +146,7 @@ export function CliSection() {
             </div>
             <p className="text-muted-foreground text-sm">
               The CLI runs code locally and measures user/system CPU to estimate mWh, Joules and gCO2e.
-              <strong className="text-foreground"> With profile project you aggregate real repo scenarios with a weighted average.</strong>
+              <strong className="text-foreground"> With profile-project you aggregate real repo scenarios with a weighted average.</strong>
             </p>
           </div>
 

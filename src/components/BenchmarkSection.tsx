@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Gauge, TerminalSquare } from "lucide-react";
 
 const benchmarkLines = [
-  { text: "$ ecocode profile project --config ./ecocode.profile.json", tone: "text-emerald-400" },
+  { text: "$ ecocode profile-project --config ./ecocode.profile.json", tone: "text-emerald-400" },
   { text: "", tone: "" },
   { text: "Warning: the profile command runs the code locally.", tone: "text-yellow-300" },
   { text: "Dynamic project profiling in progress...", tone: "text-white/70" },
@@ -73,7 +73,7 @@ export function BenchmarkSection() {
             <ol className="mt-3 space-y-2 text-sm text-muted-foreground list-decimal pl-4">
               <li>Build the project if the target is TypeScript (e.g. npm run build).</li>
               <li>Choose a real entrypoint (.js/.mjs/.cjs), not an isolated utility.</li>
-              <li>Esegui: <span className="font-mono text-foreground">npx ecocode@latest profile ./dist/index.js</span></li>
+              <li>Run: <span className="font-mono text-foreground">npx ecocode@latest profile ./dist/index.js</span></li>
               <li>Read CPU Time, mWh and gCO2e to compare before/after optimization.</li>
             </ol>
           </div>
@@ -83,7 +83,7 @@ export function BenchmarkSection() {
             <ol className="mt-3 space-y-2 text-sm text-muted-foreground list-decimal pl-4">
               <li>Crea <span className="font-mono text-foreground">ecocode.profile.json</span> with the real scenarios of the repo.</li>
               <li>Imposta un <span className="font-mono text-foreground">weight</span> for each scenario based on traffic/usage.</li>
-              <li>Esegui: <span className="font-mono text-foreground">npx ecocode@latest profile project --config ./ecocode.profile.json --repeat 3</span></li>
+              <li>Run: <span className="font-mono text-foreground">npx ecocode@latest profile-project --config ./ecocode.profile.json --repeat 3</span></li>
               <li>Use the final weighted average as the project's energy KPI.</li>
             </ol>
           </div>
